@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Santo Terço</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#121626">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Santo Terço">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: uma tela só — cabeçalho com o mistério do dia, o terço desenhado no centro (toque = próxima conta), barra de ações embaixo.
+   Visual de capela à noite: azul profundo, contas de pérola que viram ouro ao serem rezadas. Tema escuro único, de propósito. */
+:root {
+  --bg: #121626;
+  --surface: #1b2034;
+  --line: #2e3550;
+  --fg: #efe8d8;
+  --muted: #8f94ab;
+  --gold: #e3b75e;
+  --on-gold: #1d1606;
+  --chain: #394062;
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--bg);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { height: 100%; }
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ui);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, main:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* Cabeçalho */
+.top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 12px 4px;
+}
+.setbtn {
+  background: none;
+  border: 0;
+  padding: 4px 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.day {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.setname {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.setname svg { width: 14px; height: 14px; opacity: .7; flex: none; }
+.step {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  padding-bottom: 6px;
+  white-space: nowrap;
+}
+
+/* Área de toque + terço */
+main {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  container-type: size;
+  cursor: pointer;
+  touch-action: manipulation;
+  overflow: hidden;
+}
+.stage {
+  position: relative;
+  width: min(100cqw, 61cqh);
+  aspect-ratio: 360 / 590;
+  container-type: inline-size;
+}
+.stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+.chain { fill: none; stroke: var(--chain); stroke-width: 1.2; }
+.b { transition: transform .45s cubic-bezier(.3, 1.5, .5, 1); }
+.b .fill { opacity: 0; transition: opacity .5s ease; }
+.b.done .fill, .b.cur .fill { opacity: 1; }
+.b.cur { transform: scale(1.6); }
+.b.cur .fill { filter: brightness(1.18); }
+.b.large.cur { transform: scale(1.45); }
+.b.medal.cur { transform: scale(1.22); }
+.b.cross.cur { transform: scale(1.1); }
+.b.marker .base { fill: var(--chain); }
+.b.marker.cur { transform: scale(2); }
+.shine { fill: #fff; opacity: .28; pointer-events: none; }
+
+#halo { transition: transform .5s cubic-bezier(.4, 0, .2, 1), opacity .4s; }
+.halo-c { transform-origin: 0 0; animation: breathe 2.6s ease-in-out infinite; }
+@keyframes breathe {
+  0%, 100% { transform: scale(.82); opacity: .55; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+/* Texto no centro do terço */
+.center {
+  position: absolute;
+  left: 50%;
+  top: 32.2%;
+  transform: translate(-50%, -50%);
+  width: 64%;
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2cqw;
+}
+.center.swap { animation: swapIn .42s ease; }
+@keyframes swapIn {
+  from { opacity: .15; transform: translate(-50%, calc(-50% + 2cqw)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+.kicker {
+  font-size: 3.1cqw;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.mname {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 4.9cqw;
+  line-height: 1.15;
+  color: var(--fg);
+  opacity: .85;
+  text-wrap: balance;
+}
+.ptitle {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 9.6cqw;
+  line-height: 1;
+  text-wrap: balance;
+  margin-top: 1cqw;
+}
+.count {
+  font-size: 4.2cqw;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.count:empty, .mname:empty { display: none; }
+
+.hint {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .04em;
+  transition: opacity .6s;
+  pointer-events: none;
+}
+.hint.gone { opacity: 0; }
+
+.ripple {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  pointer-events: none;
+  animation: rip .65s ease-out forwards;
+}
+@keyframes rip {
+  from { transform: scale(.6); opacity: .7; }
+  to { transform: scale(4.5); opacity: 0; }
+}
+
+/* Progresso + botões */
+.progress {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width .45s ease;
+}
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr;
+  gap: 10px;
+  padding-block: 12px 14px;
+}
+.btn {
+  height: 50px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s, color .2s, border-color .2s, opacity .2s;
+}
+.btn svg { width: 18px; height: 18px; flex: none; }
+.btn:active { background: var(--surface); }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn.primary { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.btn.primary:active { filter: brightness(.92); }
+.btn.warn { border-color: var(--gold); color: var(--gold); }
+.btn.wide { width: 100%; }
+
+/* Folhas (oração e escolha de mistérios) */
+.sheet-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 16, .62);
+  animation: fade .25s ease;
+}
+@keyframes fade { from { opacity: 0; } }
+.sheet {
+  position: relative;
+  max-height: 84%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  border-radius: 22px 22px 0 0;
+  padding-top: 10px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  animation: up .32s cubic-bezier(.2, .9, .3, 1);
+}
+@keyframes up { from { transform: translateY(100%); } }
+.grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.sheet-head h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.x {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+.x svg { width: 16px; height: 16px; }
+.sheet-body {
+  overflow-y: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-bottom: 4px;
+}
+.prayer h3 {
+  margin: 0 0 6px;
+  font-family: var(--ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.prayer p {
+  margin: 0 0 .6em;
+  font-family: var(--display);
+  font-size: 1.32rem;
+  line-height: 1.5;
+  max-width: 34em;
+}
+.prayer p.v { font-style: italic; color: var(--muted); }
+.prayer .ref { font-family: var(--ui); font-size: 13px; color: var(--muted); }
+.pending {
+  font-family: var(--ui) !important;
+  font-size: 14px !important;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.sets { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+.setopt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+.setopt.sel { border-color: var(--gold); background: rgba(227, 183, 94, .08); }
+.setopt b { display: block; font-family: var(--display); font-size: 1.35rem; font-weight: 700; }
+.setopt small { color: var(--muted); font-size: 13px; }
+.tag {
+  flex: none;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--on-gold);
+  background: var(--gold);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo-c, .center.swap, .ripple, .sheet, .backdrop { animation: none; }
+  .b, #halo, .progress span { transition-duration: .01s; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button id="setBtn" class="setbtn" type="button" aria-haspopup="dialog" aria-label="Escolher mistérios">
+    <span class="day" id="dayLbl">Hoje</span>
+    <span class="setname"><span id="setLbl">Mistérios</span>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+    </span>
+  </button>
+  <span class="step" id="stepLbl"></span>
+</header>
+
+<main id="tap" tabindex="0" role="button" aria-label="Avançar para a próxima conta">
+  <div class="stage">
+    <svg id="rosary" viewBox="0 0 360 590" aria-hidden="true"></svg>
+    <div class="center" id="center" aria-live="polite">
+      <div class="kicker" id="kicker"></div>
+      <div class="mname" id="mname"></div>
+      <div class="ptitle" id="ptitle"></div>
+      <div class="count" id="count"></div>
+    </div>
+  </div>
+  <div class="hint" id="hint">Toque em qualquer lugar para passar a conta</div>
+</main>
+
+<div class="progress"><span id="bar"></span></div>
+
+<footer class="bottom">
+  <button id="backBtn" class="btn" type="button" aria-label="Voltar uma conta">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>Voltar
+  </button>
+  <button id="textBtn" class="btn primary" type="button">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5C8.5 4 6 3.5 3 4v11.5c3-.5 5.5 0 7 1.5 1.5-1.5 4-2 7-1.5V4c-3-.5-5.5 0-7 1.5zM10 5.5V17"/></svg>Ver oração
+  </button>
+  <button id="resetBtn" class="btn" type="button">Reiniciar</button>
+</footer>
+
+<div class="sheet-wrap" id="prayerSheet" hidden>
+  <div class="backdrop" data-close></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Oração</h2>
+      <button class="x" type="button" data-close aria-label="Fechar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+    <button class="btn primary wide" id="sheetNext" type="button">Próxima conta
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l6 6-6 6"/></svg>
+    </button>
+  </section>
+</div>
+
+<div class="sheet-wrap" id="setSheet" hidden>
+  <div class="backdrop" data-close></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="setTitle">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <h2 id="setTitle">Mistérios do Rosário</h2>
+      <button class="x" type="button" data-close aria-label="Fechar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="sets" id="setList"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Conteúdo ---------- */
+
+  // Dia da semana (0 = domingo) -> mistérios
+  const DAY_SET = ["gloriosos", "gozosos", "dolorosos", "gloriosos", "luminosos", "dolorosos", "gozosos"];
+  const DIAS = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+
+  const SETS = {
+    gozosos: {
+      nome: "Mistérios Gozosos", adj: "Gozoso", dias: "Segunda-feira e sábado",
+      m: [
+        { t: "A Anunciação do Anjo a Nossa Senhora", r: "Lc 1,26-38" },
+        { t: "A Visitação de Nossa Senhora a Santa Isabel", r: "Lc 1,39-56" },
+        { t: "O Nascimento de Jesus em Belém", r: "Lc 2,1-20" },
+        { t: "A Apresentação do Menino Jesus no Templo", r: "Lc 2,22-38" },
+        { t: "A Perda e o Encontro do Menino Jesus no Templo", r: "Lc 2,41-52" }
+      ]
+    },
+    dolorosos: {
+      nome: "Mistérios Dolorosos", adj: "Doloroso", dias: "Terça-feira e sexta-feira",
+      m: [
+        { t: "A Agonia de Jesus no Horto", r: "Mt 26,36-46" },
+        { t: "A Flagelação de Jesus", r: "Jo 19,1" },
+        { t: "A Coroação de Espinhos", r: "Mt 27,27-31" },
+        { t: "Jesus carrega a Cruz a caminho do Calvário", r: "Jo 19,17" },
+        { t: "A Crucifixão e Morte de Jesus", r: "Lc 23,33-46" }
+      ]
+    },
+    gloriosos: {
+      nome: "Mistérios Gloriosos", adj: "Glorioso", dias: "Quarta-feira e domingo",
+      m: [
+        { t: "A Ressurreição de Jesus", r: "Mt 28,1-10" },
+        { t: "A Ascensão de Jesus ao Céu", r: "At 1,6-11" },
+        { t: "A Vinda do Espírito Santo sobre Nossa Senhora e os Apóstolos", r: "At 2,1-13" },
+        { t: "A Assunção de Nossa Senhora ao Céu", r: "Ap 12,1" },
+        { t: "A Coroação de Nossa Senhora como Rainha do Céu e da Terra", r: "Ap 12,1" }
+      ]
+    },
+    luminosos: {
+      nome: "Mistérios Luminosos", adj: "Luminoso", dias: "Quinta-feira",
+      m: [
+        { t: "O Batismo de Jesus no Jordão", r: "Mt 3,13-17" },
+        { t: "A Autorrevelação de Jesus nas Bodas de Caná", r: "Jo 2,1-12" },
+        { t: "O Anúncio do Reino de Deus e o convite à conversão", r: "Mc 1,14-15" },
+        { t: "A Transfiguração de Jesus", r: "Lc 9,28-36" },
+        { t: "A Instituição da Eucaristia", r: "Lc 22,14-20" }
+      ]
+    }
+  };
+
+  // pending: true = texto ainda vai ser enviado
+  const PRAYERS = {
+    visita: {
+      t: "Visita ao Santíssimo", pending: true,
+      p: ["O texto desta oração ainda vai ser adicionado."]
+    },
+    contricao: {
+      t: "Ato de Contrição", pending: true,
+      p: ["O texto desta oração ainda vai ser adicionado."]
+    },
+    pai: {
+      t: "Pai-Nosso",
+      p: ["Pai Nosso, que estais nos Céus, santificado seja o vosso Nome, venha a nós o vosso Reino, seja feita a vossa vontade, assim na terra como no Céu.",
+          "O pão nosso de cada dia nos dai hoje, perdoai-nos as nossas ofensas, assim como nós perdoamos a quem nos tem ofendido, e não nos deixeis cair em tentação, mas livrai-nos do Mal. Amém."]
+    },
+    ave: {
+      t: "Ave-Maria",
+      p: ["Ave Maria, cheia de graça, o Senhor é convosco, bendita sois vós entre as mulheres e bendito é o fruto do vosso ventre, Jesus.",
+          "Santa Maria, Mãe de Deus, rogai por nós, pecadores, agora e na hora de nossa morte. Amém."]
+    },
+    gloria: {
+      t: "Glória ao Pai",
+      p: ["Glória ao Pai, ao Filho e ao Espírito Santo. Como era no princípio, agora e sempre. Amém."]
+    },
+    fatima: {
+      t: "Ó meu Jesus",
+      p: ["Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno, levai as almas todas para o Céu e socorrei principalmente as que mais precisarem."]
+    },
+    salve: {
+      t: "Salve Rainha",
+      p: ["Salve, Rainha, Mãe de misericórdia, vida, doçura e esperança nossa, salve! A vós bradamos, os degredados filhos de Eva. A vós suspiramos, gemendo e chorando neste vale de lágrimas.",
+          "Eia, pois, advogada nossa, esses vossos olhos misericordiosos a nós volvei. E depois deste desterro, mostrai-nos Jesus, bendito fruto do vosso ventre. Ó clemente, ó piedosa, ó doce sempre Virgem Maria.",
+          { v: "V. Rogai por nós, Santa Mãe de Deus." },
+          { v: "R. Para que sejamos dignos das promessas de Cristo. Amém." }]
+    }
+  };
+
+  // Sequência da oração. Cada passo = um toque na tela.
+  function buildSteps(setKey) {
+    const S = SETS[setKey];
+    const st = [];
+    st.push({ bead: "cross", kicker: "Início", title: "Visita ao Santíssimo", pr: ["visita"] });
+    st.push({ bead: "L0", kicker: "Início", title: "Ato de Contrição", pr: ["contricao"] });
+    ["i1", "i2", "i3"].forEach((b, i) =>
+      st.push({ bead: b, kicker: "Início", title: "Ave-Maria", count: (i + 1) + " de 3", pr: ["ave"] }));
+    st.push({ bead: "g0", kicker: "Início", title: "Glória ao Pai", pr: ["gloria"] });
+    for (let k = 1; k <= 5; k++) {
+      const m = S.m[k - 1];
+      const kick = k + "º Mistério " + S.adj;
+      st.push({ bead: "L" + k, kicker: kick, mname: m.t, title: "Pai-Nosso", pr: [{ mist: k }, "pai"], big: true });
+      for (let j = 1; j <= 10; j++)
+        st.push({ bead: "d" + k + "-" + j, kicker: kick, mname: m.t, title: "Ave-Maria", count: j + " de 10", pr: ["ave"] });
+      st.push({ bead: "g" + k, kicker: kick, mname: m.t, title: "Glória ao Pai", count: "e Ó meu Jesus", pr: ["gloria", "fatima"] });
+    }
+    st.push({ bead: "medal", kicker: "Encerramento", title: "Salve Rainha", pr: ["salve"] });
+    return st;
+  }
+
+  /* ---------- Desenho do terço ---------- */
+
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.getElementById("rosary");
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e);
+    return e;
+  }
+
+  const defs = el("defs", {});
+  function radial(id, stops, cx, cy) {
+    const g = el("radialGradient", { id: id, cx: cx || "35%", cy: cy || "30%", r: "75%" }, defs);
+    stops.forEach(s => el("stop", { offset: s[0], "stop-color": s[1], "stop-opacity": s[2] == null ? 1 : s[2] }, g));
+  }
+  radial("gPearl", [["0", "#7a80a3"], [".55", "#454b6b"], ["1", "#262a3f"]]);
+  radial("gGold", [["0", "#fff3cf"], [".45", "#e9bf63"], ["1", "#94631d"]]);
+  radial("gHalo", [["0", "#f4c86a", .6], [".45", "#e3b75e", .22], ["1", "#e3b75e", 0]], "50%", "50%");
+
+  const CX = 180, CY = 190, R = 150;
+  el("circle", { cx: CX, cy: CY, r: R, class: "chain" });
+  el("line", { x1: CX, y1: 352, x2: CX, y2: 512, class: "chain" });
+
+  const halo = el("g", { id: "halo" });
+  el("circle", { r: 20, cx: 0, cy: 0, fill: "url(#gHalo)", class: "halo-c" }, halo);
+
+  const beads = {}, pos = {};
+  const RAD = { small: 5.6, large: 8.4 };
+  const HALO_SCALE = { small: 1, large: 1.35, marker: .75, medal: 1.9, cross: 2.7 };
+
+  function addBead(id, x, y, kind) {
+    const g = el("g", { class: "b " + kind });
+    g.style.transformOrigin = x + "px " + y + "px";
+    if (kind === "small" || kind === "large") {
+      const r = RAD[kind];
+      el("circle", { cx: x, cy: y, r: r, fill: "url(#gPearl)", class: "base" }, g);
+      el("circle", { cx: x, cy: y, r: r, fill: "url(#gGold)", class: "fill" }, g);
+      el("circle", { cx: x - r * .35, cy: y - r * .38, r: r * .28, class: "shine" }, g);
+    } else if (kind === "marker") {
+      const t = "rotate(45 " + x + " " + y + ")";
+      el("rect", { x: x - 2.6, y: y - 2.6, width: 5.2, height: 5.2, transform: t, class: "base" }, g);
+      el("rect", { x: x - 2.6, y: y - 2.6, width: 5.2, height: 5.2, transform: t, fill: "url(#gGold)", class: "fill" }, g);
+    } else if (kind === "medal") {
+      el("ellipse", { cx: x, cy: y, rx: 12, ry: 15, fill: "url(#gPearl)", class: "base" }, g);
+      el("ellipse", { cx: x, cy: y, rx: 12, ry: 15, fill: "url(#gGold)", class: "fill" }, g);
+      el("ellipse", { cx: x, cy: y, rx: 8.5, ry: 11.5, fill: "none", stroke: "#fff", "stroke-opacity": .25, "stroke-width": 1 }, g);
+      el("path", { d: "M" + x + " " + (y - 6) + "v12M" + (x - 4) + " " + (y - 2) + "h8", stroke: "#fff", "stroke-opacity": .45, "stroke-width": 1.4, "stroke-linecap": "round", fill: "none" }, g);
+    } else if (kind === "cross") {
+      const d = "M175 508h10v15h15v10h-15v45h-10v-45h-15v-10h15z";
+      el("path", { d: d, fill: "url(#gPearl)", class: "base" }, g);
+      el("path", { d: d, fill: "url(#gGold)", class: "fill" }, g);
+      el("path", { d: "M177.5 511v64", stroke: "#fff", "stroke-opacity": .18, "stroke-width": 1.5, fill: "none" }, g);
+    }
+    beads[id] = g;
+    pos[id] = { x: x, y: y, s: HALO_SCALE[kind] };
+  }
+
+  // Volta do terço: começa na medalha (embaixo) e sobe pelo lado direito
+  const loop = [{ id: "medal", k: "medal", w: 2.8 }];
+  for (let k = 1; k <= 5; k++) {
+    if (k > 1) loop.push({ id: "L" + k, k: "large", w: 1.9 });
+    for (let j = 1; j <= 10; j++) loop.push({ id: "d" + k + "-" + j, k: "small", w: 1 });
+    loop.push({ id: "g" + k, k: "marker", w: .9 });
+  }
+  const W = loop.reduce((s, e) => s + e.w, 0);
+  const u = 2 * Math.PI / W;
+  let a = Math.PI / 2;
+  loop.forEach((e, i) => {
+    if (i > 0) a -= e.w / 2 * u;
+    addBead(e.id, CX + R * Math.cos(a), CY + R * Math.sin(a), e.k);
+    a -= e.w / 2 * u;
+  });
+
+  // Pingente: medalha -> 1ª conta grande -> glória -> 3 pequenas -> conta grande -> cruz
+  addBead("L1", CX, 380, "large");
+  addBead("g0", CX, 397, "marker");
+  addBead("i3", CX, 414, "small");
+  addBead("i2", CX, 434, "small");
+  addBead("i1", CX, 454, "small");
+  addBead("L0", CX, 486, "large");
+  addBead("cross", CX, 543, "cross");
+
+  /* ---------- Estado ---------- */
+
+  const KEY = "santo-terco-v1";
+  const now = new Date();
+  const todayStr = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + now.getDate();
+  const todaySet = DAY_SET[now.getDay()];
+
+  let state = { date: todayStr, set: todaySet, idx: 0 };
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && saved.date === todayStr && SETS[saved.set]) state = saved;
+  } catch (e) {}
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  let steps = buildSteps(state.set);
+  if (state.idx > steps.length) state.idx = 0;
+
+  /* ---------- Interface ---------- */
+
+  const $ = id => document.getElementById(id);
+  const center = $("center"), hint = $("hint");
+  let lastIdx = -1;
+
+  function renderHeader() {
+    $("dayLbl").textContent = DIAS[now.getDay()] + (state.set === todaySet ? "" : " · escolhido manualmente");
+    $("setLbl").textContent = SETS[state.set].nome;
+  }
+
+  function render() {
+    const n = steps.length, i = state.idx, finished = i >= n;
+    steps.forEach((s, j) => {
+      const b = beads[s.bead];
+      b.classList.toggle("done", j < i);
+      b.classList.toggle("cur", j === i);
+    });
+
+    if (!finished) {
+      const p = pos[steps[i].bead];
+      halo.style.transform = "translate(" + p.x + "px," + p.y + "px) scale(" + p.s + ")";
+      halo.style.opacity = 1;
+    } else {
+      halo.style.opacity = 0;
+    }
+
+    const s = finished
+      ? { kicker: "Terço concluído", title: "Amém", mname: "Que Nossa Senhora interceda por você.", count: "" }
+      : steps[i];
+    $("kicker").textContent = s.kicker || "";
+    $("mname").textContent = s.mname || "";
+    $("ptitle").textContent = s.title || "";
+    $("count").textContent = s.count || "";
+    if (lastIdx !== -1 && lastIdx !== i) {
+      center.classList.remove("swap");
+      void center.offsetWidth;
+      center.classList.add("swap");
+    }
+    lastIdx = i;
+
+    $("stepLbl").textContent = finished ? "Concluído" : (i + 1) + " / " + n;
+    $("bar").style.width = (Math.min(i, n) / n * 100) + "%";
+    $("backBtn").disabled = i === 0;
+    $("textBtn").disabled = finished;
+    $("resetBtn").textContent = finished ? "Rezar de novo" : "Reiniciar";
+    save();
+  }
+
+  function buzz(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+
+  function next() {
+    if (state.idx >= steps.length) return;
+    state.idx++;
+    const s = steps[state.idx];
+    buzz(s && (s.big || s.bead === "medal") ? [18, 70, 18] : 12);
+    hint.classList.add("gone");
+    keepAwake();
+    render();
+    if (!$("prayerSheet").hidden) {
+      if (state.idx >= steps.length) closeSheets(); else fillPrayer();
+    }
+  }
+  function prev() {
+    if (state.idx === 0) return;
+    state.idx--;
+    buzz(8);
+    render();
+    if (!$("prayerSheet").hidden) fillPrayer();
+  }
+
+  // Toque na área do terço = próxima conta
+  const tap = $("tap");
+  tap.addEventListener("click", e => {
+    const r = tap.getBoundingClientRect();
+    const dot = document.createElement("span");
+    dot.className = "ripple";
+    dot.style.left = (e.clientX - r.left) + "px";
+    dot.style.top = (e.clientY - r.top) + "px";
+    tap.appendChild(dot);
+    setTimeout(() => dot.remove(), 700);
+    next();
+  });
+
+  document.addEventListener("keydown", e => {
+    const open = !$("prayerSheet").hidden || !$("setSheet").hidden;
+    if (e.key === "Escape") { closeSheets(); return; }
+    if (open && !$("prayerSheet").hidden && e.key === "ArrowRight") { next(); return; }
+    if (open) return;
+    if (e.target.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) return;
+    if ([" ", "Enter", "ArrowRight", "ArrowDown"].includes(e.key)) { e.preventDefault(); next(); }
+    else if (["ArrowLeft", "ArrowUp", "Backspace"].includes(e.key)) { e.preventDefault(); prev(); }
+  });
+
+  $("backBtn").addEventListener("click", prev);
+
+  // Reiniciar pede confirmação com um segundo toque
+  let resetTimer = null;
+  $("resetBtn").addEventListener("click", () => {
+    const btn = $("resetBtn");
+    if (state.idx === 0) return;
+    if (state.idx >= steps.length || btn.classList.contains("warn")) {
+      clearTimeout(resetTimer);
+      btn.classList.remove("warn");
+      state.idx = 0;
+      lastIdx = -1;
+      render();
+      return;
+    }
+    btn.classList.add("warn");
+    btn.textContent = "Confirmar?";
+    resetTimer = setTimeout(() => { btn.classList.remove("warn"); render(); }, 3000);
+  });
+
+  /* ---------- Folha da oração ---------- */
+
+  function prayerBlock(key) {
+    const box = document.createElement("div");
+    box.className = "prayer";
+    const h = document.createElement("h3");
+    if (typeof key === "object") {
+      const S = SETS[state.set], m = S.m[key.mist - 1];
+      h.textContent = key.mist + "º Mistério " + S.adj;
+      box.appendChild(h);
+      const p = document.createElement("p");
+      p.textContent = "Contemplamos " + m.t.charAt(0).toLowerCase() + m.t.slice(1) + ".";
+      box.appendChild(p);
+      const ref = document.createElement("p");
+      ref.className = "ref";
+      ref.textContent = "Leitura: " + m.r;
+      box.appendChild(ref);
+      return box;
+    }
+    const P = PRAYERS[key];
+    h.textContent = P.t;
+    box.appendChild(h);
+    P.p.forEach(t => {
+      const p = document.createElement("p");
+      if (typeof t === "object") { p.className = "v"; p.textContent = t.v; }
+      else p.textContent = t;
+      if (P.pending) p.className = "pending";
+      box.appendChild(p);
+    });
+    return box;
+  }
+
+  function fillPrayer() {
+    const s = steps[state.idx];
+    $("sheetTitle").textContent = s.title + (s.count && /\d/.test(s.count) ? " · " + s.count : "");
+    const body = $("sheetBody");
+    body.textContent = "";
+    s.pr.forEach(k => body.appendChild(prayerBlock(k)));
+    body.scrollTop = 0;
+  }
+
+  function openSheet(id) {
+    $(id).hidden = false;
+    const x = $(id).querySelector(".x");
+    if (x) x.focus({ preventScroll: true });
+  }
+  function closeSheets() {
+    $("prayerSheet").hidden = true;
+    $("setSheet").hidden = true;
+  }
+  document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", closeSheets));
+
+  $("textBtn").addEventListener("click", () => {
+    if (state.idx >= steps.length) return;
+    fillPrayer();
+    openSheet("prayerSheet");
+  });
+  $("sheetNext").addEventListener("click", next);
+
+  /* ---------- Escolha dos mistérios ---------- */
+
+  function fillSets() {
+    const list = $("setList");
+    list.textContent = "";
+    Object.keys(SETS).forEach(key => {
+      const S = SETS[key];
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "setopt" + (key === state.set ? " sel" : "");
+      const txt = document.createElement("span");
+      const t = document.createElement("b"); t.textContent = S.nome;
+      const d = document.createElement("small"); d.textContent = S.dias;
+      txt.appendChild(t); txt.appendChild(d);
+      b.appendChild(txt);
+      if (key === todaySet) {
+        const tag = document.createElement("span");
+        tag.className = "tag"; tag.textContent = "Hoje";
+        b.appendChild(tag);
+      }
+      b.addEventListener("click", () => {
+        state.set = key;
+        steps = buildSteps(key);
+        renderHeader();
+        render();
+        closeSheets();
+      });
+      list.appendChild(b);
+    });
+  }
+  $("setBtn").addEventListener("click", () => { fillSets(); openSheet("setSheet"); });
+
+  /* ---------- Manter a tela acesa ---------- */
+
+  let wake = null;
+  async function keepAwake() {
+    try {
+      if (wake || !("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+      wake = await navigator.wakeLock.request("screen");
+      wake.addEventListener("release", () => { wake = null; });
+    } catch (e) { wake = null; }
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && state.idx > 0) keepAwake();
+  });
+
+  if (state.idx > 0) hint.classList.add("gone");
+  renderHeader();
+  render();
+})();
+</script>
+</body>
+</html>
