@@ -1,10 +1,13 @@
 # Santo Terço
 
-Aplicativo web (um único `index.html`) para acompanhar a reza do terço no celular.
+Aplicativo web para acompanhar a reza do terço no celular, seguindo a estrutura do "Terço da Obra".
 
 - Toque em qualquer lugar do terço para passar para a próxima conta.
-- Os mistérios do dia são escolhidos automaticamente (seg/sáb gozosos, ter/sex dolorosos, qua/dom gloriosos, qui luminosos), e dá para trocar tocando no nome dos mistérios.
-- "Ver oração" mostra o texto da oração da conta atual.
-- O progresso fica salvo no aparelho durante o dia.
+- Os mistérios do dia são escolhidos automaticamente pelo dia da semana (e podem ser trocados tocando no nome).
+- "Ver oração" mostra o texto da oração do momento.
+- Ajustes: tema claro ou escuro; orações em latim (padrão) ou português.
 
-Para usar no celular: abra o `index.html` no navegador e use "Adicionar à tela de início".
+## Arquivos
+
+- `index.html`: a tela e a estrutura do terço (ordem dos passos e contas marcadas).
+- `oracoes.js`: os textos das orações (latim e português) e os nomes dos mistérios. Para corrigir um texto, edite só aqui.
