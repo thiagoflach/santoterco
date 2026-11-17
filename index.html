@@ -27,7 +27,6 @@
   --accent: #d6c99a;
   --btn: #d6c99a;
   --on-btn: #17251f;
-  --chain: #3f5848;
   --gem1: #ffffff;
   --gem2: #dfe7e2;
   --gem3: #8fa298;
@@ -36,6 +35,12 @@
   --tag-bg: #d6c99a;
   --tag-fg: #17251f;
   --shadow: 0 6px 18px rgba(0, 0, 0, .28);
+  --metal1: #f6f8f7;
+  --metal2: #c3cac6;
+  --metal3: #7f8a84;
+  --metal-edge: rgba(255, 255, 255, .45);
+  --shadow-c: #050a07;
+  --shadow-o: .7;
   --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
   --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
@@ -54,7 +59,6 @@
   --accent: #0f5132;
   --btn: #0f5132;
   --on-btn: #faf9f4;
-  --chain: #cdcabe;
   --gem1: #8fdcae;
   --gem2: #1f8050;
   --gem3: #093a23;
@@ -63,6 +67,12 @@
   --tag-bg: #b7d9c1;
   --tag-fg: #0f5132;
   --shadow: 0 6px 16px rgba(27, 42, 34, .08);
+  --metal1: #b9b5a8;
+  --metal2: #7d796d;
+  --metal3: #45423a;
+  --metal-edge: rgba(40, 36, 28, .55);
+  --shadow-c: #2a3a30;
+  --shadow-o: .35;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -164,12 +174,26 @@ main {
 }
 .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
-.chain { fill: none; stroke: var(--chain); stroke-width: 1.2; }
 .s1 { stop-color: var(--gem1); }
 .s2 { stop-color: var(--gem2); }
 .s3 { stop-color: var(--gem3); }
 .facet { pointer-events: none; }
-.edge { fill: none; stroke: #fff; stroke-opacity: .35; stroke-width: .5; stroke-linejoin: round; }
+.edge { fill: none; stroke: #fff; stroke-opacity: .32; stroke-width: .4; stroke-linejoin: round; }
+.rim { fill: none; stroke: #000; stroke-opacity: .28; stroke-width: .7; stroke-linejoin: round; }
+.glint { fill: #fff; opacity: .75; }
+.spark { fill: #fff; opacity: .85; }
+.sh { stop-color: var(--shadow-c); }
+.shadow { opacity: var(--shadow-o); }
+.m1 { stop-color: var(--metal1); }
+.m2 { stop-color: var(--metal2); }
+.m3 { stop-color: var(--metal3); }
+.metal-edge { fill: none; stroke: var(--metal-edge); stroke-width: .7; stroke-linejoin: round; }
+.cross-shadow { fill: var(--shadow-c); opacity: calc(var(--shadow-o) * .55); }
+.bail { fill: none; stroke: url(#gMetal); stroke-width: 1.8; }
+.boss { fill: url(#gMetal); stroke: var(--metal-edge); stroke-width: .5; }
+.chain-shadow { fill: none; stroke: var(--shadow-c); stroke-opacity: calc(var(--shadow-o) * .5); stroke-width: 2; }
+.chain-under { fill: none; stroke: var(--metal3); stroke-width: 1.9; }
+.chain-links { fill: none; stroke: var(--metal1); stroke-width: 1.1; stroke-dasharray: 2.2 1.3; stroke-linecap: round; }
 .b { transition: transform .45s cubic-bezier(.3, 1.5, .5, 1); }
 .b .fill { opacity: 0; transition: opacity .5s ease; }
 .b.done .fill, .b.cur .fill, .b.grp .fill { opacity: 1; }
@@ -177,7 +201,8 @@ main {
 .b.cur .fill { filter: brightness(1.18); }
 .b.large.cur { transform: scale(1.45); }
 .b.junction.cur { transform: scale(1.35); }
-.b.cross.cur { transform: scale(1.1); }
+.b.cross.cur { transform: scale(1.08); }
+.b.cross.grp { filter: none; }
 .b.grp { filter: url(#glow); }
 .b.grp.small { transform: scale(1.3); }
 .all .b.grp { transform: none; }
@@ -193,9 +218,9 @@ main {
 .center {
   position: absolute;
   left: 50%;
-  top: 33%;
+  top: 29%;
   transform: translate(-50%, -50%);
-  width: 66%;
+  width: 60%;
   text-align: center;
   pointer-events: none;
   display: flex;
@@ -629,31 +654,79 @@ main {
   }
 
   const defs = el("defs", {});
-  const pearl = el("linearGradient", { id: "gPearl", x1: "0", y1: "0", x2: "1", y2: "1" }, defs);
-  [["0", "s1"], [".5", "s2"], ["1", "s3"]].forEach(s => el("stop", { offset: s[0], class: s[1] }, pearl));
-  function radial(id, stops, cx, cy) {
-    const g = el("radialGradient", { id: id, cx: cx || "35%", cy: cy || "30%", r: "75%" }, defs);
-    stops.forEach(s => el("stop", { offset: s[0], "stop-color": s[1], "stop-opacity": s[2] == null ? 1 : s[2] }, g));
+  function linear(id, classes, x2, y2) {
+    const g = el("linearGradient", { id: id, x1: "0", y1: "0", x2: x2 || "1", y2: y2 || "1" }, defs);
+    classes.forEach(c => el("stop", { offset: c[0], class: c[1] }, g));
   }
+  linear("gPearl", [["0", "s1"], [".5", "s2"], ["1", "s3"]]);
+  // Prata: faixas claras e escuras alternadas imitam o reflexo do metal
+  linear("gMetal", [["0", "m1"], [".22", "m2"], [".45", "m3"], [".62", "m1"], [".8", "m2"], ["1", "m3"]], "1", ".6");
   const ouro = el("linearGradient", { id: "gGold", x1: "0", y1: "0", x2: "1", y2: "1" }, defs);
   [["0", "#fff1c2"], [".45", "#e2b456"], ["1", "#8a5a16"]].forEach(s => el("stop", { offset: s[0], "stop-color": s[1] }, ouro));
-  radial("gHalo", [["0", "#f4c86a", .6], [".45", "#e3b75e", .22], ["1", "#e3b75e", 0]], "50%", "50%");
+  const halo0 = el("radialGradient", { id: "gHalo", cx: "50%", cy: "50%", r: "50%" }, defs);
+  [["0", .6], [".45", .22], ["1", 0]].forEach(s => el("stop", { offset: s[0], "stop-color": "#e8bd62", "stop-opacity": s[1] }, halo0));
+  const sombra = el("radialGradient", { id: "gShadow", cx: "50%", cy: "50%", r: "50%" }, defs);
+  [["0", 1], [".55", .55], ["1", 0]].forEach(s => el("stop", { offset: s[0], class: "sh", "stop-opacity": s[1] }, sombra));
   const glow = el("filter", { id: "glow", x: "-100%", y: "-100%", width: "300%", height: "300%" }, defs);
   el("feGaussianBlur", { in: "SourceGraphic", stdDeviation: "2.2", result: "b" }, glow);
   const merge = el("feMerge", {}, glow);
   el("feMergeNode", { in: "b" }, merge);
   el("feMergeNode", { in: "SourceGraphic" }, merge);
 
-  const CX = 180, CY = 188, R = 150;
-  el("circle", { cx: CX, cy: CY, r: R, class: "chain" });
-  el("line", { x1: CX, y1: CY + R, x2: CX, y2: 490, class: "chain" });
+  /* ---- Forma do terço: uma gota irregular, como o terço fica apoiado na mão ---- */
+  const JX = 180, JY = 338; // junção
+  const CTRL = [
+    [JX, JY], [226, 298], [270, 246], [306, 178], [314, 112], [288, 58], [236, 30],
+    [176, 26], [118, 38], [72, 76], [48, 136], [54, 202], [84, 256], [130, 302]
+  ];
+  // Curva suave e fechada passando pelos pontos (Catmull-Rom), amostrada em pontos densos
+  function curvaFechada(P, passosPorTrecho) {
+    const out = [], n = P.length;
+    for (let i = 0; i < n; i++) {
+      const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
+      for (let k = 0; k < passosPorTrecho; k++) {
+        const t = k / passosPorTrecho, t2 = t * t, t3 = t2 * t;
+        const f = (a, b, c, d) => .5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+        out.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+      }
+    }
+    out.push(out[0].slice());
+    return out;
+  }
+  const curva = curvaFechada(CTRL, 40);
+  const acum = [0];
+  for (let i = 1; i < curva.length; i++)
+    acum.push(acum[i - 1] + Math.hypot(curva[i][0] - curva[i - 1][0], curva[i][1] - curva[i - 1][1]));
+  const L = acum[acum.length - 1];
+  function pontoEm(d) {
+    d = ((d % L) + L) % L;
+    let i = 1;
+    while (i < acum.length - 1 && acum[i] < d) i++;
+    const t = (d - acum[i - 1]) / (acum[i] - acum[i - 1] || 1);
+    return [curva[i - 1][0] + (curva[i][0] - curva[i - 1][0]) * t, curva[i - 1][1] + (curva[i][1] - curva[i - 1][1]) * t];
+  }
+
+  // Pingente: cai da junção com uma leve curva, até a argola da cruz
+  const pingente = t => [JX + 5 * Math.sin(t * Math.PI) - 1.5 * t, JY + t * (482 - JY)];
+  const fimPingente = pingente(1);
+
+  // Corrente de elos de metal (sombra + elos)
+  const corrente = el("g", {});
+  const dCurva = "M" + curva.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z";
+  const pp = Array.from({ length: 21 }, (_, i) => pingente(i / 20));
+  const dPing = "M" + pp.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L");
+  [dCurva, dPing].forEach(d => {
+    el("path", { d: d, class: "chain-shadow", transform: "translate(.8 1.8)" }, corrente);
+    el("path", { d: d, class: "chain-under" }, corrente);
+    el("path", { d: d, class: "chain-links" }, corrente);
+  });
 
   const halo = el("g", { id: "halo" });
   el("circle", { r: 20, cx: 0, cy: 0, fill: "url(#gHalo)", class: "halo-c" }, halo);
 
   const contas = {}, pos = {};
   const RAIO = { small: 5.8, large: 8.6, junction: 10.6 };
-  const HALO = { small: 1, large: 1.35, junction: 1.6, cross: 2.7 };
+  const HALO = { small: 1, large: 1.35, junction: 1.6, cross: 2.4 };
 
   // Gerador fixo: cada pedra tem sempre o mesmo formato irregular
   let semente = 20261117;
@@ -661,17 +734,18 @@ main {
   const LUZ = -3 * Math.PI / 4; // luz vindo de cima, à esquerda
   const pts = l => l.map(p => p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ");
 
-  // Pedra lapidada: contorno irregular, mesa central e facetas iluminadas
+  // Pedra lapidada: contorno irregular, mesa central, facetas iluminadas, brilho e sombra
   function pedra(g, x, y, r) {
-    const n = 7 + Math.floor(sorteio() * 3);
+    el("ellipse", { cx: x + r * .25, cy: y + r * .45, rx: r * 1.25, ry: r * 1.05, fill: "url(#gShadow)", class: "shadow" }, g);
+    const n = 8 + Math.floor(sorteio() * 3);
     const giro = sorteio() * Math.PI * 2;
     const fora = [], mesa = [];
     for (let i = 0; i < n; i++) {
-      const ang = giro + (i + (sorteio() - .5) * .55) / n * Math.PI * 2;
-      const raio = r * (.84 + sorteio() * .28);
+      const ang = giro + (i + (sorteio() - .5) * .5) / n * Math.PI * 2;
+      const raio = r * (.86 + sorteio() * .24);
       fora.push([x + raio * Math.cos(ang), y + raio * Math.sin(ang)]);
       const am = ang + Math.PI / n * (.4 + sorteio() * .4);
-      const rm = r * (.4 + sorteio() * .12);
+      const rm = r * (.42 + sorteio() * .1);
       mesa.push([x - r * .08 + rm * Math.cos(am), y - r * .1 + rm * Math.sin(am)]);
     }
     el("polygon", { points: pts(fora), fill: "url(#gPearl)", class: "base" }, g);
@@ -681,58 +755,75 @@ main {
       const j = (i + 1) % n;
       const mx = (fora[i][0] + fora[j][0]) / 2 - x, my = (fora[i][1] + fora[j][1]) / 2 - y;
       const k = Math.cos(Math.atan2(my, mx) - LUZ);
-      el("polygon", {
-        points: pts([fora[i], fora[j], mesa[j], mesa[i]]),
-        fill: k > 0 ? "#fff" : "#000",
-        "fill-opacity": (k > 0 ? .06 + .42 * k : .24 * -k).toFixed(3)
-      }, fac);
+      // cada faceta tem duas metades com tons diferentes, como na lapidação real
+      const meio = [(mesa[i][0] + mesa[j][0]) / 2, (mesa[i][1] + mesa[j][1]) / 2];
+      const op1 = k > 0 ? .05 + .45 * k : .26 * -k;
+      el("polygon", { points: pts([fora[i], fora[j], meio]), fill: k > 0 ? "#fff" : "#000", "fill-opacity": op1.toFixed(3) }, fac);
+      el("polygon", { points: pts([fora[i], meio, mesa[i]]), fill: k > 0 ? "#fff" : "#000", "fill-opacity": (op1 * .6).toFixed(3) }, fac);
+      el("polygon", { points: pts([fora[j], mesa[j], meio]), fill: k > 0 ? "#000" : "#fff", "fill-opacity": (.06 + .06 * sorteio()).toFixed(3) }, fac);
     }
-    el("polygon", { points: pts(mesa), fill: "#fff", "fill-opacity": .2 }, fac);
+    el("polygon", { points: pts(mesa), fill: "#fff", "fill-opacity": .16 }, fac);
+    el("polygon", { points: pts(fora), class: "rim" }, fac);
     el("polygon", { points: pts(fora), class: "edge" }, fac);
-    el("polygon", { points: pts(mesa), class: "edge" }, fac);
+    el("polyline", { points: pts(mesa.concat([mesa[0]])), class: "edge" }, fac);
+    // brilho: um reflexo e um pequeno lampejo em forma de estrela
+    el("ellipse", { cx: x - r * .32, cy: y - r * .38, rx: r * .22, ry: r * .13, transform: "rotate(-35 " + (x - r * .32) + " " + (y - r * .38) + ")", class: "glint" }, fac);
+    if (r > 6 || sorteio() < .35) {
+      const sx = x - r * .2, sy = y - r * .45, a1 = r * .55, a2 = r * .1;
+      el("path", { d: "M" + sx + " " + (sy - a1) + "L" + (sx + a2) + " " + (sy - a2) + "L" + (sx + a1) + " " + sy + "L" + (sx + a2) + " " + (sy + a2) +
+        "L" + sx + " " + (sy + a1) + "L" + (sx - a2) + " " + (sy + a2) + "L" + (sx - a1) + " " + sy + "L" + (sx - a2) + " " + (sy - a2) + "Z", class: "spark" }, fac);
+    }
+  }
+
+  // Cruz de prata, com pontas alargadas, chanfro e argola
+  function cruz(g) {
+    const cx = fimPingente[0], top = 492;
+    const d = "M-6.5 0H6.5L4 8V16H16L24 13.5V26.5L16 24H4V64L6.5 74H-6.5L-4 64V24H-16L-24 26.5V13.5L-16 16H-4V8Z";
+    const tr = "translate(" + cx + " " + top + ")";
+    el("path", { d: d, transform: "translate(" + (cx + 1.6) + " " + (top + 2.6) + ")", class: "cross-shadow" }, g);
+    el("circle", { cx: cx, cy: top - 5, r: 3.6, class: "bail" }, g);
+    el("path", { d: d, transform: tr, fill: "url(#gMetal)", class: "metal" }, g);
+    // chanfro: metade iluminada e metade em sombra de cada braço
+    el("path", { d: "M-4 2V64L0 72V2ZM-22 15L-4 18V20H-22Z", transform: tr, fill: "#fff", "fill-opacity": .22 }, g);
+    el("path", { d: "M0 2V72L4 64V2ZM4 20V22L22 25V20Z", transform: tr, fill: "#000", "fill-opacity": .14 }, g);
+    el("path", { d: d, transform: tr, class: "metal-edge" }, g);
+    el("circle", { cx: cx, cy: top + 20, r: 2.2, class: "boss" }, g);
+    return [cx, top + 26];
   }
 
   function addConta(id, x, y, tipo) {
     const g = el("g", { class: "b " + tipo });
+    if (tipo === "cross") { const c = cruz(g); x = c[0]; y = c[1]; }
+    else pedra(g, x, y, RAIO[tipo]);
     g.style.transformOrigin = x + "px " + y + "px";
-    if (tipo === "cross") {
-      const d = "M175 486h10v15h15v10h-15v45h-10v-45h-15v-10h15z";
-      el("path", { d: d, fill: "url(#gPearl)", class: "base" }, g);
-      el("path", { d: d, fill: "url(#gGold)", class: "fill" }, g);
-      const fac = el("g", { class: "facet" }, g);
-      // lado iluminado e lado em sombra de cada braço, como uma pedra talhada
-      el("path", { d: "M175 486h5v65h-5zM160 501h20v5h-20z", fill: "#fff", "fill-opacity": .3 }, fac);
-      el("path", { d: "M180 486h5v65h-5zM180 506h20v5h-20z", fill: "#000", "fill-opacity": .16 }, fac);
-      el("path", { d: d, class: "edge" }, fac);
-    } else {
-      pedra(g, x, y, RAIO[tipo]);
-    }
     contas[id] = g;
     pos[id] = { x: x, y: y, s: HALO[tipo] };
   }
 
-  // Volta: começa na conta grande da junção (Pai Nosso do 1º mistério) e sobe pelo lado direito
+  // Volta: começa na conta da junção (Pai Nosso do 1º mistério) e sobe pelo lado direito
   const volta = [{ id: "L1", t: "junction", w: 2.6 }];
   for (let k = 1; k <= 5; k++) {
     if (k > 1) volta.push({ id: "L" + k, t: "large", w: 1.9 });
     for (let j = 1; j <= 10; j++) volta.push({ id: "d" + k + "-" + j, t: "small", w: 1 });
   }
   const W = volta.reduce((s, e) => s + e.w, 0);
-  const u = 2 * Math.PI / W;
-  let a = Math.PI / 2;
+  let d = 0;
   volta.forEach((e, i) => {
-    if (i > 0) a -= e.w / 2 * u;
-    addConta(e.id, CX + R * Math.cos(a), CY + R * Math.sin(a), e.t);
-    a -= e.w / 2 * u;
+    if (i > 0) d += e.w / 2 * L / W;
+    const p = pontoEm(d);
+    addConta(e.id, p[0], p[1], e.t);
+    d += e.w / 2 * L / W;
   });
 
   // Pingente, de cima para baixo: conta grande (Comunhão Espiritual), 3 pequenas (Adoração), conta grande, cruz
-  addConta("p4", CX, 370, "large");
-  addConta("p3", CX, 396, "small");
-  addConta("p2", CX, 416, "small");
-  addConta("p1", CX, 436, "small");
-  addConta("p0", CX, 464, "large");
-  addConta("cruz", CX, 521, "cross");
+  [["p4", .2, "large"], ["p3", .37, "small"], ["p2", .49, "small"], ["p1", .61, "small"], ["p0", .79, "large"]]
+    .forEach(c => { const p = pingente(c[1]); addConta(c[0], p[0], p[1], c[2]); });
+  addConta("cruz", 0, 0, "cross");
+
+  // Texto no centro da volta
+  const meioVolta = curva.reduce((m, p) => [m[0] + p[0], m[1] + p[1]], [0, 0]).map(v => v / curva.length);
+  document.getElementById("center").style.top = (meioVolta[1] / 570 * 100) + "%";
+  document.getElementById("center").style.left = (meioVolta[0] / 360 * 100) + "%";
 
   /* ---------- Estado ---------- */
 
