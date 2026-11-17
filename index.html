@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Santo Terço</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="theme-color" content="#121626">
+<meta name="theme-color" content="#17251f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,20 +17,25 @@
 /* Layout: uma tela só. Cabeçalho com o mistério do dia, o terço desenhado no centro (toque = próxima conta), ações embaixo.
    Visual de capela: contas de pérola que viram ouro ao serem rezadas. Dois temas, escolhidos no app (escuro é o padrão). */
 :root {
-  --bg: #121626;
-  --surface: #1b2034;
-  --line: #2e3550;
-  --fg: #efe8d8;
-  --muted: #8f94ab;
-  --gold: #e3b75e;
-  --gold-btn: #e3b75e;
-  --on-gold: #1d1606;
-  --chain: #394062;
-  --pearl1: #7a80a3;
-  --pearl2: #454b6b;
-  --pearl3: #262a3f;
-  --backdrop: rgba(6, 8, 16, .62);
-  --sel: rgba(227, 183, 94, .1);
+  /* Escuro: paleta verde-floresta e areia. Contas = diamantes claros. */
+  --bg: #17251f;
+  --surface: #1e2f27;
+  --raised: #24382f;
+  --line: #344b3a;
+  --fg: #f1ebdd;
+  --muted: #a6a078;
+  --accent: #d6c99a;
+  --btn: #d6c99a;
+  --on-btn: #17251f;
+  --chain: #3f5848;
+  --gem1: #ffffff;
+  --gem2: #dfe7e2;
+  --gem3: #8fa298;
+  --backdrop: rgba(8, 14, 11, .66);
+  --sel: rgba(214, 201, 154, .1);
+  --tag-bg: #d6c99a;
+  --tag-fg: #17251f;
+  --shadow: 0 6px 18px rgba(0, 0, 0, .28);
   --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
   --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme: dark;
@@ -39,20 +44,25 @@
   background: var(--bg);
 }
 :root[data-tema="claro"] {
-  --bg: #eef0f5;
-  --surface: #ffffff;
-  --line: #d4d8e4;
-  --fg: #1c2236;
-  --muted: #5f6782;
-  --gold: #9a6b1c;
-  --gold-btn: #b8862f;
-  --on-gold: #ffffff;
-  --chain: #b1b7ca;
-  --pearl1: #f4f5fa;
-  --pearl2: #bfc4d6;
-  --pearl3: #8e95ae;
-  --backdrop: rgba(20, 24, 40, .35);
-  --sel: rgba(184, 134, 47, .1);
+  /* Claro: marfim, pedra e verde-floresta. Contas = esmeraldas. */
+  --bg: #faf9f4;
+  --surface: #f4f2ec;
+  --raised: #ffffff;
+  --line: #d6d3c8;
+  --fg: #1b2a22;
+  --muted: #767b72;
+  --accent: #0f5132;
+  --btn: #0f5132;
+  --on-btn: #faf9f4;
+  --chain: #cdcabe;
+  --gem1: #8fdcae;
+  --gem2: #1f8050;
+  --gem3: #093a23;
+  --backdrop: rgba(27, 42, 34, .28);
+  --sel: #e6f1e9;
+  --tag-bg: #b7d9c1;
+  --tag-fg: #0f5132;
+  --shadow: 0 6px 16px rgba(27, 42, 34, .08);
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -75,7 +85,7 @@ body {
   transition: background .3s, color .3s;
 }
 button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, main:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* Cabeçalho */
 .top {
@@ -106,7 +116,7 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--gold); outli
   font-family: var(--display);
   font-size: 1.55rem;
   font-weight: 600;
-  color: var(--gold);
+  color: var(--accent);
   line-height: 1.1;
   display: inline-flex;
   align-items: center;
@@ -126,7 +136,8 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--gold); outli
   height: 40px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: transparent;
+  background: var(--raised);
+  box-shadow: var(--shadow);
   display: grid;
   place-items: center;
   flex: none;
@@ -154,9 +165,11 @@ main {
 .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
 .chain { fill: none; stroke: var(--chain); stroke-width: 1.2; }
-.s1 { stop-color: var(--pearl1); }
-.s2 { stop-color: var(--pearl2); }
-.s3 { stop-color: var(--pearl3); }
+.s1 { stop-color: var(--gem1); }
+.s2 { stop-color: var(--gem2); }
+.s3 { stop-color: var(--gem3); }
+.facet { pointer-events: none; }
+.edge { fill: none; stroke: #fff; stroke-opacity: .35; stroke-width: .5; stroke-linejoin: round; }
 .b { transition: transform .45s cubic-bezier(.3, 1.5, .5, 1); }
 .b .fill { opacity: 0; transition: opacity .5s ease; }
 .b.done .fill, .b.cur .fill, .b.grp .fill { opacity: 1; }
@@ -168,7 +181,6 @@ main {
 .b.grp { filter: url(#glow); }
 .b.grp.small { transform: scale(1.3); }
 .all .b.grp { transform: none; }
-.shine { fill: #fff; opacity: .28; pointer-events: none; }
 
 #halo { transition: transform .5s cubic-bezier(.4, 0, .2, 1), opacity .4s; }
 .halo-c { transform-origin: 0 0; animation: breathe 2.6s ease-in-out infinite; }
@@ -201,7 +213,7 @@ main {
   font-weight: 700;
   letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--accent);
   text-wrap: balance;
 }
 .mname {
@@ -251,7 +263,7 @@ main {
   height: 28px;
   margin: -14px 0 0 -14px;
   border-radius: 50%;
-  border: 1.5px solid var(--gold);
+  border: 1.5px solid var(--accent);
   pointer-events: none;
   animation: rip .65s ease-out forwards;
 }
@@ -272,7 +284,7 @@ main {
   display: block;
   height: 100%;
   width: 0;
-  background: var(--gold-btn);
+  background: var(--btn);
   transition: width .45s ease;
 }
 .bottom {
@@ -283,9 +295,10 @@ main {
 }
 .btn {
   height: 50px;
-  border-radius: 14px;
+  border-radius: 999px;
   border: 1px solid var(--line);
-  background: transparent;
+  background: var(--raised);
+  box-shadow: var(--shadow);
   font-size: 15px;
   font-weight: 600;
   display: inline-flex;
@@ -296,10 +309,10 @@ main {
 }
 .btn svg { width: 18px; height: 18px; flex: none; }
 .btn:active { background: var(--surface); }
-.btn:disabled { opacity: .35; cursor: default; }
-.btn.primary { background: var(--gold-btn); border-color: var(--gold-btn); color: var(--on-gold); }
+.btn:disabled { opacity: .4; cursor: default; box-shadow: none; }
+.btn.primary { background: var(--btn); border-color: var(--btn); color: var(--on-btn); }
 .btn.primary:active { filter: brightness(.92); }
-.btn.warn { border-color: var(--gold); color: var(--gold); }
+.btn.warn { border-color: var(--accent); color: var(--accent); }
 .btn.wide { width: 100%; flex: none; }
 
 /* Folhas (oração, mistérios, ajustes) */
@@ -368,7 +381,7 @@ main {
   font-weight: 700;
   letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--accent);
 }
 .prayer p {
   margin: 0 0 .7em;
@@ -390,11 +403,11 @@ main {
   gap: 12px;
   text-align: left;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 18px;
   border: 1px solid var(--line);
-  background: transparent;
+  background: var(--raised);
 }
-.setopt.sel { border-color: var(--gold); background: var(--sel); }
+.setopt.sel { border-color: var(--accent); background: var(--sel); }
 .setopt b { display: block; font-family: var(--display); font-size: 1.35rem; font-weight: 700; }
 .setopt small { color: var(--muted); font-size: 13px; }
 .tag {
@@ -403,8 +416,8 @@ main {
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--on-gold);
-  background: var(--gold-btn);
+  color: var(--tag-fg);
+  background: var(--tag-bg);
   padding: 4px 8px;
   border-radius: 999px;
 }
@@ -423,20 +436,21 @@ main {
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   padding: 4px;
-  border-radius: 14px;
+  border-radius: 999px;
   border: 1px solid var(--line);
+  background: var(--raised);
 }
 .seg button {
   height: 44px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 999px;
   background: transparent;
   font-size: 15px;
   font-weight: 600;
   color: var(--muted);
   transition: background .2s, color .2s;
 }
-.seg button[aria-pressed="true"] { background: var(--gold-btn); color: var(--on-gold); }
+.seg button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 
 @media (prefers-reduced-motion: reduce) {
   .halo-c, .center.swap, .ripple, .sheet, .backdrop { animation: none; }
@@ -615,13 +629,14 @@ main {
   }
 
   const defs = el("defs", {});
-  const pearl = el("radialGradient", { id: "gPearl", cx: "35%", cy: "30%", r: "75%" }, defs);
-  [["0", "s1"], [".55", "s2"], ["1", "s3"]].forEach(s => el("stop", { offset: s[0], class: s[1] }, pearl));
+  const pearl = el("linearGradient", { id: "gPearl", x1: "0", y1: "0", x2: "1", y2: "1" }, defs);
+  [["0", "s1"], [".5", "s2"], ["1", "s3"]].forEach(s => el("stop", { offset: s[0], class: s[1] }, pearl));
   function radial(id, stops, cx, cy) {
     const g = el("radialGradient", { id: id, cx: cx || "35%", cy: cy || "30%", r: "75%" }, defs);
     stops.forEach(s => el("stop", { offset: s[0], "stop-color": s[1], "stop-opacity": s[2] == null ? 1 : s[2] }, g));
   }
-  radial("gGold", [["0", "#fff3cf"], [".45", "#e9bf63"], ["1", "#94631d"]]);
+  const ouro = el("linearGradient", { id: "gGold", x1: "0", y1: "0", x2: "1", y2: "1" }, defs);
+  [["0", "#fff1c2"], [".45", "#e2b456"], ["1", "#8a5a16"]].forEach(s => el("stop", { offset: s[0], "stop-color": s[1] }, ouro));
   radial("gHalo", [["0", "#f4c86a", .6], [".45", "#e3b75e", .22], ["1", "#e3b75e", 0]], "50%", "50%");
   const glow = el("filter", { id: "glow", x: "-100%", y: "-100%", width: "300%", height: "300%" }, defs);
   el("feGaussianBlur", { in: "SourceGraphic", stdDeviation: "2.2", result: "b" }, glow);
@@ -637,8 +652,45 @@ main {
   el("circle", { r: 20, cx: 0, cy: 0, fill: "url(#gHalo)", class: "halo-c" }, halo);
 
   const contas = {}, pos = {};
-  const RAIO = { small: 5.6, large: 8.4, junction: 10.5 };
+  const RAIO = { small: 5.8, large: 8.6, junction: 10.6 };
   const HALO = { small: 1, large: 1.35, junction: 1.6, cross: 2.7 };
+
+  // Gerador fixo: cada pedra tem sempre o mesmo formato irregular
+  let semente = 20261117;
+  const sorteio = () => { semente = (semente * 16807) % 2147483647; return semente / 2147483647; };
+  const LUZ = -3 * Math.PI / 4; // luz vindo de cima, à esquerda
+  const pts = l => l.map(p => p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ");
+
+  // Pedra lapidada: contorno irregular, mesa central e facetas iluminadas
+  function pedra(g, x, y, r) {
+    const n = 7 + Math.floor(sorteio() * 3);
+    const giro = sorteio() * Math.PI * 2;
+    const fora = [], mesa = [];
+    for (let i = 0; i < n; i++) {
+      const ang = giro + (i + (sorteio() - .5) * .55) / n * Math.PI * 2;
+      const raio = r * (.84 + sorteio() * .28);
+      fora.push([x + raio * Math.cos(ang), y + raio * Math.sin(ang)]);
+      const am = ang + Math.PI / n * (.4 + sorteio() * .4);
+      const rm = r * (.4 + sorteio() * .12);
+      mesa.push([x - r * .08 + rm * Math.cos(am), y - r * .1 + rm * Math.sin(am)]);
+    }
+    el("polygon", { points: pts(fora), fill: "url(#gPearl)", class: "base" }, g);
+    el("polygon", { points: pts(fora), fill: "url(#gGold)", class: "fill" }, g);
+    const fac = el("g", { class: "facet" }, g);
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const mx = (fora[i][0] + fora[j][0]) / 2 - x, my = (fora[i][1] + fora[j][1]) / 2 - y;
+      const k = Math.cos(Math.atan2(my, mx) - LUZ);
+      el("polygon", {
+        points: pts([fora[i], fora[j], mesa[j], mesa[i]]),
+        fill: k > 0 ? "#fff" : "#000",
+        "fill-opacity": (k > 0 ? .06 + .42 * k : .24 * -k).toFixed(3)
+      }, fac);
+    }
+    el("polygon", { points: pts(mesa), fill: "#fff", "fill-opacity": .2 }, fac);
+    el("polygon", { points: pts(fora), class: "edge" }, fac);
+    el("polygon", { points: pts(mesa), class: "edge" }, fac);
+  }
 
   function addConta(id, x, y, tipo) {
     const g = el("g", { class: "b " + tipo });
@@ -647,12 +699,13 @@ main {
       const d = "M175 486h10v15h15v10h-15v45h-10v-45h-15v-10h15z";
       el("path", { d: d, fill: "url(#gPearl)", class: "base" }, g);
       el("path", { d: d, fill: "url(#gGold)", class: "fill" }, g);
-      el("path", { d: "M177.5 489v64", stroke: "#fff", "stroke-opacity": .18, "stroke-width": 1.5, fill: "none" }, g);
+      const fac = el("g", { class: "facet" }, g);
+      // lado iluminado e lado em sombra de cada braço, como uma pedra talhada
+      el("path", { d: "M175 486h5v65h-5zM160 501h20v5h-20z", fill: "#fff", "fill-opacity": .3 }, fac);
+      el("path", { d: "M180 486h5v65h-5zM180 506h20v5h-20z", fill: "#000", "fill-opacity": .16 }, fac);
+      el("path", { d: d, class: "edge" }, fac);
     } else {
-      const r = RAIO[tipo];
-      el("circle", { cx: x, cy: y, r: r, fill: "url(#gPearl)", class: "base" }, g);
-      el("circle", { cx: x, cy: y, r: r, fill: "url(#gGold)", class: "fill" }, g);
-      el("circle", { cx: x - r * .35, cy: y - r * .38, r: r * .28, class: "shine" }, g);
+      pedra(g, x, y, RAIO[tipo]);
     }
     contas[id] = g;
     pos[id] = { x: x, y: y, s: HALO[tipo] };
@@ -720,7 +773,7 @@ main {
   function aplicarTema() {
     document.documentElement.setAttribute("data-tema", ajustes.tema);
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", ajustes.tema === "claro" ? "#eef0f5" : "#121626");
+    if (meta) meta.setAttribute("content", ajustes.tema === "claro" ? "#faf9f4" : "#17251f");
     $("temaEscuro").setAttribute("aria-pressed", ajustes.tema === "escuro");
     $("temaClaro").setAttribute("aria-pressed", ajustes.tema === "claro");
     $("linguaLa").setAttribute("aria-pressed", ajustes.lingua === "la");
