@@ -385,6 +385,7 @@ main {
   animation: fade .4s ease;
 }
 .imgbtn svg { width: 17px; height: 17px; flex: none; }
+.imgbtn.audbtn { top: 54px; text-decoration: none; }
 
 /* Imagem do mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
 .viewer {
@@ -719,6 +720,10 @@ main {
       <button type="button" id="linguaPt" data-lingua="pt" aria-label="Orações em português">PT</button>
     </div>
   </div>
+  <a class="imgbtn audbtn" id="vAudio" href="#" target="_blank" rel="noopener" hidden aria-label="Ouvir a meditação do mistério">
+    <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
+    <span id="vAudioLbl">Meditação</span>
+  </a>
   <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
   </button>
@@ -828,10 +833,6 @@ main {
       <span class="v-kicker" id="vKicker"></span>
       <span class="v-name" id="vName"></span>
       <span class="v-autor" id="vAutor"></span>
-      <a class="v-audio" id="vAudio" href="#" target="_blank" rel="noopener" hidden>
-        <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
-        <span id="vAudioLbl">Ouvir a meditação</span>
-      </a>
     </figcaption>
   </figure>
   <button class="iconbtn v-close" id="viewerClose" type="button" aria-label="Fechar a imagem">
@@ -1478,7 +1479,7 @@ main {
     b.href = cap.link;
     const meu = ativo && ativo.chave === cap.chave && tocando;
     $("vAudioIco").innerHTML = meu ? PAUSE : PLAY;
-    $("vAudioLbl").textContent = !spotify && semPlayer ? "Ouvir no Spotify" : meu ? "Pausar a meditação" : "Ouvir a meditação";
+    $("vAudioLbl").textContent = !spotify && semPlayer ? "Spotify" : meu ? "Pausar" : "Meditação";
   }
 
   function tocarCapitulo(cap) {
@@ -1527,7 +1528,7 @@ main {
   }
 
   $("vAudio").addEventListener("click", e => {
-    e.stopPropagation(); // não fecha a imagem
+    e.stopPropagation(); // tocar o áudio não passa a conta
     const cap = capituloAtual();
     if (!cap || !spotify) return; // sem player: o link abre o capítulo no Spotify
     e.preventDefault();
