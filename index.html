@@ -297,7 +297,7 @@ main {
   left: 50%;
   top: 29%;
   transform: translate(-50%, -50%);
-  width: 60%;
+  width: 70%;
   text-align: center;
   pointer-events: none;
   display: flex;
@@ -311,9 +311,9 @@ main {
   to { opacity: 1; transform: translate(-50%, -50%); }
 }
 .kicker {
-  font-size: 3.1cqw;
+  font-size: 3.4cqw;
   font-weight: 700;
-  letter-spacing: .12em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--accent);
   text-wrap: balance;
@@ -322,7 +322,7 @@ main {
   font-family: var(--display);
   font-style: italic;
   font-weight: 500;
-  font-size: 4.9cqw;
+  font-size: 5.2cqw;
   line-height: 1.15;
   opacity: .85;
   text-wrap: balance;
@@ -330,17 +330,19 @@ main {
 .ptitle {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 9.4cqw;
+  font-size: 11cqw;
   line-height: 1.02;
   text-wrap: balance;
   margin-top: 1cqw;
 }
-.ptitle.long { font-size: 7cqw; }
-.ptitle.xlong { font-size: 6cqw; }
+.ptitle.long { font-size: 8.8cqw; }
+.ptitle.xlong { font-size: 7.2cqw; }
+/* a contagem ("3 de 10") é o que mais importa ver de relance */
 .count {
-  font-size: 4.2cqw;
-  font-weight: 600;
-  color: var(--muted);
+  font-size: 8.6cqw;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 1cqw;
   font-variant-numeric: tabular-nums;
 }
 .count:empty, .mname:empty, .kicker:empty { display: none; }
@@ -750,7 +752,67 @@ main {
 }
 .seg button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 
+/* Fim do terço: rosa dourada (fundo escuro nos dois temas) */
+.rosa-fim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: radial-gradient(circle at 50% 44%, rgba(70, 54, 16, .55), rgba(6, 10, 8, .97) 62%);
+  animation: fade .8s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+.rosa-fim.saindo { opacity: 0; transition: opacity 1s ease; }
+.rosa-luz {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: min(120vw, 620px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 120, .32), rgba(255, 214, 120, 0) 62%);
+  animation: luzPulsa 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes luzPulsa { 0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.92); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } }
+.rosa-img {
+  position: relative;
+  width: min(54vw, 250px);
+  max-height: 58vh;
+  object-fit: contain;
+  animation: rosaEntra 1.8s cubic-bezier(.2, .8, .3, 1) both, rosaBrilho 2.6s ease-in-out 1.4s infinite;
+}
+@keyframes rosaEntra {
+  from { opacity: 0; transform: scale(.55) translateY(40px) rotate(-6deg); filter: drop-shadow(0 0 0 rgba(255, 210, 110, 0)); }
+  to { opacity: 1; transform: none; filter: drop-shadow(0 0 14px rgba(255, 205, 100, .5)); }
+}
+@keyframes rosaBrilho {
+  0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 205, 100, .45)) brightness(1); }
+  50% { filter: drop-shadow(0 0 38px rgba(255, 216, 125, .95)) brightness(1.16); }
+}
+.rosa-txt { position: relative; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: fade 1.2s ease .9s both; }
+.rosa-txt span { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #d6c99a; }
+.rosa-txt b { font-family: var(--display); font-size: 2.6rem; font-weight: 600; color: #f6e7b8; text-shadow: 0 0 18px rgba(255, 210, 110, .55); }
+.rosa-brilhos { position: absolute; inset: 0; pointer-events: none; }
+.brilho {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: radial-gradient(circle, #fff6d8 0 18%, rgba(255, 214, 120, .9) 30%, rgba(255, 214, 120, 0) 70%);
+  border-radius: 50%;
+  opacity: 0;
+  animation: cintila 2.2s ease-in-out infinite;
+}
+@keyframes cintila { 0%, 100% { opacity: 0; transform: scale(.3); } 45% { opacity: 1; transform: scale(1.4); } }
+
 @media (prefers-reduced-motion: reduce) {
+  .rosa-fim, .rosa-luz, .rosa-img, .rosa-txt, .brilho { animation: none; }
   .halo-c, .center.swap, .ripple, .sheet, .backdrop, #terco.sway, #terco.sway #pend { animation: none; }
   .b, #halo, .progress span { transition-duration: .01s; }
 }
@@ -977,6 +1039,14 @@ main {
   <button class="iconbtn v-close" id="viewerClose" type="button" aria-label="Fechar a imagem">
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
   </button>
+</div>
+
+<!-- Fim do terço: a rosa dourada aparece, brilha alguns segundos e o terço recomeça -->
+<div class="rosa-fim" id="rosaFim" hidden>
+  <div class="rosa-luz"></div>
+  <div class="rosa-brilhos" id="rosaBrilhos"></div>
+  <img class="rosa-img" src="imagens/rosa.png" alt="Rosa dourada">
+  <p class="rosa-txt"><span>Terço concluído</span><b>Amém</b></p>
 </div>
 
 <!-- Interruptor escondido: no iPhone, tocá-lo gera uma resposta tátil (o Safari não tem vibração) -->
@@ -1231,7 +1301,7 @@ main {
 
   // Texto no centro da volta
   const meioVolta = curva.reduce((m, p) => [m[0] + p[0], m[1] + p[1]], [0, 0]).map(v => v / curva.length);
-  document.getElementById("center").style.top = (meioVolta[1] / 570 * 100) + "%";
+  document.getElementById("center").style.top = ((meioVolta[1] + 4) / 570 * 100) + "%"; // um pouco abaixo do meio: ali a volta é mais larga
   document.getElementById("center").style.left = (meioVolta[0] / 360 * 100) + "%";
 
   /* ---------- Estado ---------- */
@@ -1245,7 +1315,11 @@ main {
   let state = { date: hojeStr, set: conjuntoHoje, idx: 0 };
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (s && s.date === hojeStr && MISTERIOS[s.set] && s.idx >= 0 && s.idx <= passos.length) state = s;
+    // mesmo dia: volta exatamente onde parou. Dia seguinte: só continua se o terço estava em andamento
+    // há menos de 6 horas (rezando perto da meia-noite); senão começa de novo, com os mistérios do dia
+    const valido = s && MISTERIOS[s.set] && s.idx >= 0 && s.idx < passos.length;
+    const recente = s && s.t && (Date.now() - s.t) < 6 * 3600 * 1000;
+    if (valido && (s.date === hojeStr || (s.idx > 0 && recente))) state = { date: s.date, set: s.set, idx: s.idx, t: s.t };
   } catch (e) {}
   let ajustes = { tema: "escuro", lingua: "la", som: true, vib: true, rolagem: 1 };
   try {
@@ -1260,6 +1334,7 @@ main {
   } catch (e) {}
   function salvar() {
     try {
+      state.t = Date.now();
       localStorage.setItem(KEY, JSON.stringify(state));
       localStorage.setItem(KEY_AJUSTES, JSON.stringify(ajustes));
     } catch (e) {}
@@ -1328,8 +1403,8 @@ main {
     $("mname").textContent = s.misterio ? conjunto().misterios[s.misterio - 1] : "";
     const t = $("ptitle");
     t.textContent = fim ? s.titulo : tituloDe(s);
-    t.classList.toggle("long", t.textContent.length > 22 && t.textContent.length <= 38);
-    t.classList.toggle("xlong", t.textContent.length > 38);
+    t.classList.toggle("long", t.textContent.length > 22 && t.textContent.length <= 32);
+    t.classList.toggle("xlong", t.textContent.length > 32);
     $("count").textContent = s.contagem || "";
     const img = imagemAtual();
     $("imgBtn").hidden = !img;
@@ -1365,33 +1440,54 @@ main {
     } catch (e) {}
   }
 
-  // Som de duas pedras se tocando, gerado na hora (sem arquivo de áudio)
+  // Som de duas pedrinhas se tocando: seco e grave, gerado na hora (sem arquivo de áudio)
   let audio = null;
+  function ctxAudio() {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === "suspended") audio.resume();
+    return audio;
+  }
   function somDePedra(forte) {
     if (!ajustes.som) return;
     try {
-      if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === "suspended") audio.resume();
-      const t0 = audio.currentTime + .005;
+      const ac = ctxAudio(), t0 = ac.currentTime + .005;
       const batida = (t, vol, freq) => {
-        // estalo: ruído curto filtrado na faixa aguda
-        const dur = .045, n = Math.floor(audio.sampleRate * dur);
-        const buf = audio.createBuffer(1, n, audio.sampleRate), ch = buf.getChannelData(0);
-        for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 6);
-        const src = audio.createBufferSource(); src.buffer = buf;
-        const bp = audio.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 5;
-        const g = audio.createGain(); g.gain.value = vol;
-        src.connect(bp).connect(g).connect(audio.destination);
+        // estalo bem curto: ruído filtrado na faixa média, sem cauda
+        const dur = .022, n = Math.floor(ac.sampleRate * dur);
+        const buf = ac.createBuffer(1, n, ac.sampleRate), ch = buf.getChannelData(0);
+        for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 8);
+        const src = ac.createBufferSource(); src.buffer = buf;
+        const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 1.4;
+        const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2600;
+        const g = ac.createGain(); g.gain.value = vol;
+        src.connect(bp).connect(lp).connect(g).connect(ac.destination);
         src.start(t);
-        // ressonância da pedra: um "tic" agudo que some rápido
-        const o = audio.createOscillator(), og = audio.createGain();
-        o.type = "sine"; o.frequency.setValueAtTime(freq * 1.35, t);
-        og.gain.setValueAtTime(vol * .35, t); og.gain.exponentialRampToValueAtTime(.0001, t + .06);
-        o.connect(og).connect(audio.destination); o.start(t); o.stop(t + .07);
+        // corpo da pedra: um "toc" grave que some quase na hora
+        const o = ac.createOscillator(), og = ac.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(freq * .55, t); o.frequency.exponentialRampToValueAtTime(freq * .4, t + .03);
+        og.gain.setValueAtTime(vol * .5, t); og.gain.exponentialRampToValueAtTime(.0001, t + .035);
+        o.connect(og).connect(ac.destination); o.start(t); o.stop(t + .04);
       };
-      const f = 2600 + Math.random() * 900;
-      batida(t0, forte ? .9 : .6, f);
-      batida(t0 + .03 + Math.random() * .025, forte ? .35 : .22, f * (1.1 + Math.random() * .2));
+      const f = 1300 + Math.random() * 400;
+      batida(t0, forte ? 1 : .75, f);
+      batida(t0 + .018 + Math.random() * .012, forte ? .3 : .2, f * (1.08 + Math.random() * .12));
+    } catch (e) {}
+  }
+
+  // Sino curto e seco, de tom médio: marca o fim de cada dezena (entrada do Glória)
+  function somDeSino() {
+    if (!ajustes.som) return;
+    try {
+      const ac = ctxAudio(), t0 = ac.currentTime + .005, base = 520;
+      // parciais de sino (não harmônicas), todas com decaimento rápido
+      [[1, .5, .45], [2.0, .22, .3], [2.76, .16, .22], [4.07, .07, .14]].forEach(([r, vol, dur]) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = base * r;
+        g.gain.setValueAtTime(0, t0);
+        g.gain.linearRampToValueAtTime(vol, t0 + .004);
+        g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+        o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + .02);
+      });
     } catch (e) {}
   }
 
@@ -1409,9 +1505,11 @@ main {
     if (state.idx >= passos.length) return;
     state.idx++;
     const s = passos[state.idx];
-    vibrar(s && s.novo ? [14, 60, 14] : 10);
-    somDePedra(!!(s && s.novo));
+    const fimDaDezena = !!(s && s.misterio && s.titulo === "Glória ao Pai");
+    vibrar(s && (s.novo || fimDaDezena) ? [14, 60, 14] : 10);
+    if (fimDaDezena) somDeSino(); else somDePedra(!!(s && s.novo));
     balancar();
+    if (state.idx >= passos.length) celebrarFim();
     hint.classList.add("gone");
     manterTelaAcesa();
     render();
@@ -1419,6 +1517,43 @@ main {
       if (state.idx >= passos.length) fecharFolhas(); else preencherOracao();
     }
   }
+  /* ---------- Fim do terço: rosa dourada e recomeço ---------- */
+
+  let fimTimer = null;
+  function celebrarFim() {
+    const el = $("rosaFim"), cx = $("rosaBrilhos");
+    if (!el.hidden) return;
+    pararAudio();
+    cx.textContent = "";
+    for (let i = 0; i < 14; i++) {
+      const b = document.createElement("span");
+      b.className = "brilho";
+      const ang = Math.random() * Math.PI * 2, dist = 18 + Math.random() * 26;
+      b.style.left = (50 + Math.cos(ang) * dist * .8) + "%";
+      b.style.top = (42 + Math.sin(ang) * dist) + "%";
+      b.style.animationDelay = (1 + Math.random() * 3) + "s";
+      b.style.transform = "scale(" + (.6 + Math.random()) + ")";
+      cx.appendChild(b);
+    }
+    el.classList.remove("saindo");
+    el.hidden = false;
+    vibrar([20, 80, 20, 80, 40]);
+    manterTelaAcesa();
+    fimTimer = setTimeout(encerrarFim, 6500);
+  }
+  function encerrarFim() {
+    const el = $("rosaFim");
+    if (el.hidden || el.classList.contains("saindo")) return;
+    clearTimeout(fimTimer);
+    el.classList.add("saindo");
+    setTimeout(() => {
+      el.hidden = true;
+      el.classList.remove("saindo");
+      recomecar(); // o terço volta ao começo
+    }, 1000);
+  }
+  $("rosaFim").addEventListener("click", encerrarFim); // um toque encerra antes
+
   function voltar() {
     if (state.idx === 0) return;
     state.idx--;
@@ -1441,7 +1576,7 @@ main {
     avancar();
   });
 
-  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet"].some(id => !$(id).hidden);
+  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") { fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
@@ -1976,6 +2111,7 @@ main {
   });
 
   if (state.idx > 0) hint.classList.add("gone");
+  window.addEventListener("pagehide", salvar); // garante a posição salva ao fechar ou recarregar
   carregarSpotify(); // o player já vai carregando, para o áudio começar na hora do toque
   aplicarTema();
   renderCabecalho();
