@@ -385,7 +385,9 @@ main {
   animation: fade .4s ease;
 }
 .imgbtn svg { width: 17px; height: 17px; flex: none; }
-.imgbtn.audbtn { top: 54px; text-decoration: none; }
+/* Meditação em cima, Imagem logo abaixo */
+#imgBtn { top: 54px; }
+.imgbtn.audbtn { top: 6px; text-decoration: none; }
 
 /* Imagem do mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
 .viewer {
@@ -1479,7 +1481,8 @@ main {
     b.href = cap.link;
     const meu = ativo && ativo.chave === cap.chave && tocando;
     $("vAudioIco").innerHTML = meu ? PAUSE : PLAY;
-    $("vAudioLbl").textContent = !spotify && semPlayer ? "Spotify" : meu ? "Pausar" : "Meditação";
+    $("vAudioLbl").textContent = "Meditação"; // o ícone mostra se está tocando (pausa) ou parado (play)
+    b.setAttribute("aria-label", meu ? "Pausar a meditação" : "Ouvir a meditação");
   }
 
   function tocarCapitulo(cap) {
