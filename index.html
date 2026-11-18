@@ -463,6 +463,17 @@ main {
 .dock { display: flex; align-items: center; gap: 8px; margin-top: 6px; animation: fade .3s ease; }
 .dock-player { flex: 1; min-width: 0; height: 80px; border-radius: 12px; overflow: hidden; background: var(--raised); }
 .dock-player iframe { display: block; border: 0; border-radius: 12px; }
+/* Companhia: o player toca escondido (continua na tela, invisível, para o navegador não suspendê-lo) */
+.dock.oculto {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 320px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
 
 .v-close {
   position: absolute;
@@ -769,14 +780,14 @@ main {
   <!-- faixa própria para os botões: o terço fica sempre abaixo dela, nunca coberto -->
   <div class="toolbar">
     <div class="acts">
-    <a class="imgbtn audbtn" id="vAudio" href="#" target="_blank" rel="noopener" hidden aria-label="Ouvir a meditação do mistério">
+    <button class="imgbtn audbtn" id="vAudio" type="button" hidden aria-label="Ouvir a meditação do mistério">
       <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
       <span id="vAudioLbl">Meditação</span>
-    </a>
-    <a class="imgbtn audbtn" id="cAudio" href="#" target="_blank" rel="noopener" hidden aria-label="Ouvir a Companhia">
+    </button>
+    <button class="imgbtn audbtn" id="cAudio" type="button" hidden aria-label="Ouvir a Companhia">
       <svg id="cAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
       <span>Companhia</span>
-    </a>
+    </button>
     <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
     </button>
@@ -1663,20 +1674,28 @@ main {
     };
   }
 
-  let spotify = null, controle = null, semPlayer = false, ativo = null, tocando = false, ajustar = false;
+  let spotify = null, controle = null, semPlayer = false, ativo = null, tocando = false, ajustar = false, pendente = null;
   const dock = $("dock");
 
   function carregarSpotify() {
     if (spotify || semPlayer || document.getElementById("spotifyApi")) return;
-    window.onSpotifyIframeApiReady = api => { spotify = api; semPlayer = false; atualizarBotaoAudio(); };
+    window.onSpotifyIframeApiReady = api => {
+      spotify = api; semPlayer = false; atualizarBotaoAudio();
+      // tocou no botão antes de o player ficar pronto: toca agora, se ainda for o mesmo momento do terço
+      if (pendente) {
+        const p = pendente; pendente = null;
+        const atual = capituloAtual() || companhiaAtual();
+        if (atual && atual.chave === p.chave) tocarTrecho(atual);
+      }
+    };
     const sc = document.createElement("script");
     sc.id = "spotifyApi";
     sc.src = "https://open.spotify.com/embed/iframe-api/v1";
     sc.async = true;
     sc.onerror = () => { semPlayer = true; atualizarBotaoAudio(); };
     document.head.appendChild(sc);
-    // onde o player não pode ser carregado, o botão abre o trecho no Spotify
-    setTimeout(() => { if (!spotify) { semPlayer = true; atualizarBotaoAudio(); } }, 7000);
+    // onde o player não pode ser carregado (como no link do Claude), os botões de áudio não aparecem
+    setTimeout(() => { if (!spotify) { semPlayer = true; atualizarBotaoAudio(); } }, 15000);
   }
 
   const BOTOES = [
@@ -1686,9 +1705,8 @@ main {
   function atualizarBotaoAudio() {
     BOTOES.forEach(bt => {
       const cap = bt.trecho(), b = $(bt.el);
-      b.hidden = !cap;
+      b.hidden = !cap || (semPlayer && !spotify);
       if (!cap) return;
-      b.href = cap.link;
       const meu = ativo && ativo.chave === cap.chave && tocando;
       $(bt.ico).innerHTML = meu ? PAUSE : PLAY; // o ícone mostra se está tocando (pausa) ou parado (play)
       b.setAttribute("aria-label", (meu ? "Pausar " : "Ouvir ") + bt.nome);
@@ -1711,10 +1729,15 @@ main {
     sp(c => c.loadUri(cap.uri, false, cap.ini));
     setTimeout(() => { if (pedirPlay && ativo === cap) { pedirPlay = false; sp(c => c.play()); } }, 1500);
   }
+  let revelarTimer = null;
   function tocarTrecho(cap) {
     ativo = cap;
     ajustar = true;
     dock.hidden = false;
+    // a Companhia toca sem mostrar o player; se o celular não deixar começar sozinho, ele aparece para um toque
+    dock.classList.toggle("oculto", cap.chave === "companhia");
+    clearTimeout(revelarTimer);
+    if (cap.chave === "companhia") revelarTimer = setTimeout(() => { if (ativo === cap && !tocando) dock.classList.remove("oculto"); }, 4000);
     if (!controle) {
       spotify.createController($("spotifyEmbed"), { uri: cap.uri, width: "100%", height: 80 }, c => {
         controle = c;
@@ -1756,6 +1779,8 @@ main {
   }
 
   function pararAudio() {
+    clearTimeout(revelarTimer);
+    pendente = null;
     if (controle) sp(c => c.pause());
     ativo = null;
     tocando = false;
@@ -1773,8 +1798,8 @@ main {
   BOTOES.forEach(bt => $(bt.el).addEventListener("click", e => {
     e.stopPropagation(); // tocar o áudio não passa a conta
     const cap = bt.trecho();
-    if (!cap || !spotify) return; // sem player: o link abre o trecho no Spotify
-    e.preventDefault();
+    if (!cap) return;
+    if (!spotify) { pendente = cap; carregarSpotify(); return; } // toca assim que o player ficar pronto
     if (ativo && ativo.chave === cap.chave && controle) {
       if (tocando) sp(c => c.pause()); else sp(c => c.resume());
     } else {
@@ -1951,6 +1976,7 @@ main {
   });
 
   if (state.idx > 0) hint.classList.add("gone");
+  carregarSpotify(); // o player já vai carregando, para o áudio começar na hora do toque
   aplicarTema();
   renderCabecalho();
   render();
