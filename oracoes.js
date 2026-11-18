@@ -652,7 +652,7 @@ window.IMAGENS = {
     { "arquivo": "imagens/gozosos-2.jpg", "autor": "Carl Heinrich Bloch (1866)" },
     { "arquivo": "imagens/gozosos-3.jpg", "autor": "Philippe de Champaigne (1643)" },
     { "arquivo": "imagens/gozosos-4.jpg", "autor": "Andey Shishkin (2012)" },
-    null
+    { "arquivo": "imagens/gozosos-5.jpg", "autor": "Philippe de Champaigne (1663)" }
   ],
   "dolorosos": [null, null, null, null, null],
   "gloriosos": [null, null, null, null, null],
