@@ -640,3 +640,18 @@ window.MISTERIOS = {
     }
   }
 };
+
+/*
+  IMAGENS DOS MISTÉRIOS
+  Uma imagem por mistério, na pasta "imagens". Use null enquanto não houver imagem:
+  nesse mistério o botão da imagem não aparece.
+*/
+window.IMAGENS = {
+  "gozosos": [
+    { "arquivo": "imagens/gozosos-1.jpg", "autor": "Luca Giordano (1672)" },
+    null, null, null, null
+  ],
+  "dolorosos": [null, null, null, null, null],
+  "gloriosos": [null, null, null, null, null],
+  "luminosos": [null, null, null, null, null]
+};

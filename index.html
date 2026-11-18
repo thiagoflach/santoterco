@@ -329,6 +329,77 @@ main {
 }
 .count:empty, .mname:empty, .kicker:empty { display: none; }
 
+/* Botão da imagem do mistério */
+.imgbtn {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  z-index: 2;
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--shadow);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  animation: fade .4s ease;
+}
+.imgbtn svg { width: 17px; height: 17px; flex: none; }
+
+/* Imagem do mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  color: #f1ebdd;
+  cursor: zoom-out;
+}
+.viewer-bg { position: absolute; inset: 0; background: rgba(6, 10, 8, .95); animation: fade .35s ease; }
+.viewer-fig {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: vin .55s cubic-bezier(.2, .8, .3, 1);
+  transition: transform .25s ease, opacity .25s ease;
+}
+@keyframes vin { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+.viewer-fig img {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 30px rgba(0, 0, 0, .55));
+}
+.viewer-fig figcaption { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; flex: none; }
+.v-kicker { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #d6c99a; }
+.v-name { font-family: var(--display); font-style: italic; font-size: 1.45rem; line-height: 1.2; text-wrap: balance; max-width: 30ch; }
+.v-autor { font-size: 12px; color: #a6a078; letter-spacing: .03em; }
+.v-close {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  z-index: 1;
+  background: rgba(36, 56, 47, .85);
+  border-color: rgba(255, 255, 255, .15);
+  color: #f1ebdd;
+}
+
 .hint {
   position: absolute;
   bottom: 6px;
@@ -575,6 +646,9 @@ main {
     </div>
   </div>
   <div class="hint" id="hint">Toque em qualquer lugar para passar a conta</div>
+  <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
+  </button>
 </main>
 
 <div class="progress"><span id="bar"></span></div>
@@ -680,6 +754,21 @@ main {
   </section>
 </div>
 
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Imagem do mistério">
+  <div class="viewer-bg"></div>
+  <figure class="viewer-fig" id="viewerFig">
+    <img id="viewerImg" alt="">
+    <figcaption>
+      <span class="v-kicker" id="vKicker"></span>
+      <span class="v-name" id="vName"></span>
+      <span class="v-autor" id="vAutor"></span>
+    </figcaption>
+  </figure>
+  <button class="iconbtn v-close" id="viewerClose" type="button" aria-label="Fechar a imagem">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+  </button>
+</div>
+
 <!-- Interruptor escondido: no iPhone, tocá-lo gera uma resposta tátil (o Safari não tem vibração) -->
 <label id="hapticLbl" aria-hidden="true" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 
@@ -692,6 +781,7 @@ main {
   const ORACOES = window.ORACOES;
   const MISTERIOS = window.MISTERIOS;
   const MISTERIOS_DO_DIA = window.MISTERIOS_DO_DIA;
+  const IMAGENS = window.IMAGENS || {};
   const DIAS = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
   /* ---------- Estrutura do terço ----------
@@ -1029,6 +1119,9 @@ main {
     t.classList.toggle("long", t.textContent.length > 22 && t.textContent.length <= 38);
     t.classList.toggle("xlong", t.textContent.length > 38);
     $("count").textContent = s.contagem || "";
+    const img = imagemAtual();
+    $("imgBtn").hidden = !img;
+    if (img) new Image().src = img.arquivo; // já carrega a imagem, para abrir na hora
     if (ultimo !== -1 && ultimo !== i) {
       center.classList.remove("swap");
       void center.offsetWidth;
@@ -1133,7 +1226,7 @@ main {
     avancar();
   });
 
-  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet"].some(id => !$(id).hidden);
+  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") { fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
@@ -1204,7 +1297,7 @@ main {
     if (x) x.focus({ preventScroll: true });
   }
   function fecharFolhas() {
-    ["prayerSheet", "setSheet", "optSheet", "jumpSheet"].forEach(id => { $(id).hidden = true; });
+    ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer"].forEach(id => { $(id).hidden = true; });
   }
   document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", fecharFolhas));
 
@@ -1245,6 +1338,45 @@ main {
     });
   }
   $("setBtn").addEventListener("click", () => { preencherConjuntos(); abrirFolha("setSheet"); });
+
+  /* ---------- Imagem do mistério ---------- */
+
+  function imagemAtual() {
+    const s = passos[state.idx];
+    if (!s || !s.misterio) return null;
+    const lista = IMAGENS[state.set];
+    return (lista && lista[s.misterio - 1]) || null;
+  }
+  const viewer = $("viewer"), fig = $("viewerFig");
+  $("imgBtn").addEventListener("click", e => {
+    e.stopPropagation(); // abrir a imagem não passa a conta
+    const img = imagemAtual(), s = passos[state.idx];
+    if (!img) return;
+    $("viewerImg").src = img.arquivo;
+    $("viewerImg").alt = conjunto().misterios[s.misterio - 1];
+    $("vKicker").textContent = s.secao;
+    $("vName").textContent = conjunto().misterios[s.misterio - 1];
+    $("vAutor").textContent = img.autor || "";
+    fig.style.transform = ""; fig.style.opacity = "";
+    viewer.hidden = false;
+    $("viewerClose").focus({ preventScroll: true });
+  });
+  viewer.addEventListener("click", () => { viewer.hidden = true; });
+  // arrastar para baixo fecha a imagem
+  let y0 = null, dy = 0;
+  viewer.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; dy = 0; fig.style.transition = "none"; }, { passive: true });
+  viewer.addEventListener("touchmove", e => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.touches[0].clientY - y0);
+    fig.style.transform = "translateY(" + dy + "px)";
+    fig.style.opacity = String(Math.max(.3, 1 - dy / 400));
+  }, { passive: true });
+  viewer.addEventListener("touchend", () => {
+    fig.style.transition = "";
+    if (dy > 90) viewer.hidden = true;
+    else { fig.style.transform = ""; fig.style.opacity = ""; }
+    y0 = null;
+  });
 
   /* ---------- Ir para uma posição ---------- */
 

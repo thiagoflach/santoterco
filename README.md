@@ -10,4 +10,5 @@ Aplicativo web para acompanhar a reza do terço no celular, seguindo a estrutura
 ## Arquivos
 
 - `index.html`: a tela e a estrutura do terço (ordem dos passos e contas marcadas).
-- `oracoes.js`: os textos das orações (latim e português) e os nomes dos mistérios. Para corrigir um texto, edite só aqui.
+- `oracoes.js`: os textos das orações (latim e português), os nomes dos mistérios e a lista de imagens. Para corrigir um texto, edite só aqui.
+- `imagens/`: uma imagem por mistério (ex.: `gozosos-1.jpg`).
