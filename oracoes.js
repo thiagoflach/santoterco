@@ -649,7 +649,8 @@ window.MISTERIOS = {
 window.IMAGENS = {
   "gozosos": [
     { "arquivo": "imagens/gozosos-1.jpg", "autor": "Luca Giordano (1672)" },
-    null, null, null, null
+    { "arquivo": "imagens/gozosos-2.jpg", "autor": "Carl Heinrich Bloch (1866)" },
+    null, null, null
   ],
   "dolorosos": [null, null, null, null, null],
   "gloriosos": [null, null, null, null, null],
