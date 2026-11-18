@@ -663,7 +663,8 @@ window.IMAGENS = {
   ],
   "gloriosos": [
     { "arquivo": "imagens/gloriosos-1.jpg", "autor": "Carl Heinrich Bloch (1875)" },
-    null, null, null, null
+    { "arquivo": "imagens/gloriosos-2.jpg", "autor": "Gebhard Fugel (1894)" },
+    null, null, null
   ],
   "luminosos": [null, null, null, null, null]
 };
