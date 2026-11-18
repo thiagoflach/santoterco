@@ -666,7 +666,7 @@ window.IMAGENS = {
     { "arquivo": "imagens/gloriosos-2.jpg", "autor": "Gebhard Fugel (1894)" },
     { "arquivo": "imagens/gloriosos-3.jpg", "autor": "Acisclo Antonio Palomino y Velasco (1705)" },
     { "arquivo": "imagens/gloriosos-4.jpg", "autor": "Manoel da Costa Ataíde (1804)" },
-    null
+    { "arquivo": "imagens/gloriosos-5.jpg", "autor": "Diego Velázquez (1636)" }
   ],
   "luminosos": [null, null, null, null, null]
 };
