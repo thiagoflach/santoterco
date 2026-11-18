@@ -508,7 +508,7 @@ main {
 }
 .bottom {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr;
+  grid-template-columns: 1fr 1.7fr;
   gap: 10px;
   padding-block: 12px 14px;
 }
@@ -745,9 +745,8 @@ main {
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>Voltar
   </button>
   <button id="textBtn" class="btn primary" type="button">
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5C8.5 4 6 3.5 3 4v11.5c3-.5 5.5 0 7 1.5 1.5-1.5 4-2 7-1.5V4c-3-.5-5.5 0-7 1.5zM10 5.5V17"/></svg>Ver oração
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5C8.5 4 6 3.5 3 4v11.5c3-.5 5.5 0 7 1.5 1.5-1.5 4-2 7-1.5V4c-3-.5-5.5 0-7 1.5zM10 5.5V17"/></svg><span id="textLbl">Ver oração</span>
   </button>
-  <button id="resetBtn" class="btn" type="button">Reiniciar</button>
 </footer>
 
 <div class="sheet-wrap" id="prayerSheet" hidden>
@@ -808,6 +807,10 @@ main {
           <button type="button" id="vibOn" data-vib="1">Ligada</button>
           <button type="button" id="vibOff" data-vib="0">Desligada</button>
         </div>
+      </div>
+      <div>
+        <div class="opt-label">Terço</div>
+        <button class="btn wide" id="resetBtn" type="button">Recomeçar do início</button>
       </div>
     </div>
   </section>
@@ -1207,8 +1210,10 @@ main {
     $("stepLbl").textContent = fim ? "Concluído" : (i + 1) + " / " + n;
     $("bar").style.width = (Math.min(i, n) / n * 100) + "%";
     $("backBtn").disabled = i === 0;
-    $("textBtn").disabled = fim;
-    $("resetBtn").textContent = fim ? "Rezar de novo" : "Reiniciar";
+    // no fim do terço, o botão principal vira "Rezar de novo"
+    $("textLbl").textContent = fim ? "Rezar de novo" : "Ver oração";
+    $("resetBtn").disabled = i === 0;
+    $("resetBtn").textContent = "Recomeçar do início";
     $("resetBtn").classList.remove("warn");
     salvar();
   }
@@ -1313,20 +1318,25 @@ main {
 
   $("backBtn").addEventListener("click", voltar);
 
-  // Reiniciar pede confirmação com um segundo toque
+  function recomecar() {
+    state.idx = 0;
+    ultimo = -1;
+    render();
+  }
+
+  // Recomeçar fica nos Ajustes e pede confirmação com um segundo toque
   let resetTimer = null;
   $("resetBtn").addEventListener("click", () => {
     const btn = $("resetBtn");
     if (state.idx === 0) return;
-    if (state.idx >= passos.length || btn.classList.contains("warn")) {
+    if (btn.classList.contains("warn")) {
       clearTimeout(resetTimer);
-      state.idx = 0;
-      ultimo = -1;
-      render();
+      recomecar();
+      fecharFolhas();
       return;
     }
     btn.classList.add("warn");
-    btn.textContent = "Confirmar?";
+    btn.textContent = "Toque de novo para confirmar";
     resetTimer = setTimeout(render, 3000);
   });
 
@@ -1377,7 +1387,7 @@ main {
   document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", fecharFolhas));
 
   $("textBtn").addEventListener("click", () => {
-    if (state.idx >= passos.length) return;
+    if (state.idx >= passos.length) { recomecar(); return; }
     preencherOracao();
     abrirFolha("prayerSheet");
   });
