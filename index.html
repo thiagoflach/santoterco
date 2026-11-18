@@ -1575,6 +1575,15 @@ main {
     b.setAttribute("aria-label", meu ? "Pausar a meditação" : "Ouvir a meditação");
   }
 
+  // comandos ao player do Spotify: uma falha dele nunca pode atrapalhar o terço
+  function sp(acao) {
+    if (!controle) return;
+    try { const r = acao(controle); if (r && typeof r.catch === "function") r.catch(() => {}); } catch (err) {}
+  }
+
+  // O episódio é carregado uma única vez, já no início do capítulo.
+  // Para trocar de mistério, o player só pula para o ponto certo (sem recarregar).
+  let carregado = false, pedirPlay = false, jaTocou = false;
   function tocarCapitulo(cap) {
     ativo = cap;
     ajustar = true;
@@ -1584,29 +1593,47 @@ main {
         controle = c;
         controle.addListener("ready", () => {
           if (!ativo) return;
-          controle.loadUri(URI_EPISODIO, false, ativo.ini);
-          controle.play();
+          if (!carregado) {
+            carregado = true;
+            pedirPlay = true;
+            sp(c => c.loadUri(URI_EPISODIO, false, ativo.ini)); // recarrega uma vez, já no ponto do capítulo
+            setTimeout(() => { if (pedirPlay) { pedirPlay = false; sp(c => c.play()); } }, 1500);
+          } else if (pedirPlay) {
+            pedirPlay = false;
+            sp(c => c.play());
+          }
         });
         controle.addListener("playback_update", e => {
           const d = e.data, pos = d.position / 1000;
           tocando = !d.isPaused;
+          if (tocando) jaTocou = true;
           if (ativo && tocando) {
-            // garante que começa no capítulo certo e para antes do próximo
-            if (ajustar && (pos < ativo.ini - 1 || pos > ativo.fim)) controle.seek(ativo.ini);
-            else if (pos >= ativo.fim - .3) { controle.pause(); controle.seek(ativo.ini); tocando = false; }
-            if (pos >= ativo.ini - 1 && pos < ativo.fim) ajustar = false;
+            // se começou fora do capítulo, pula uma única vez para o início dele
+            if (ajustar) {
+              ajustar = false;
+              if (pos < ativo.ini - 2 || pos > ativo.fim) sp(c => c.seek(ativo.ini));
+            } else if (pos >= ativo.fim - .3) {
+              // chegou ao início do próximo capítulo: para e volta ao começo deste
+              sp(c => c.pause());
+              sp(c => c.seek(ativo.ini));
+              tocando = false;
+            }
           }
           atualizarBotaoAudio();
         });
       });
+    } else if (jaTocou) {
+      sp(c => c.seek(cap.ini));
+      sp(c => c.resume());
     } else {
-      controle.loadUri(URI_EPISODIO, false, cap.ini);
-      controle.play();
+      // o áudio ainda não tocou: carrega de novo, uma vez, no ponto deste capítulo
+      pedirPlay = true;
+      sp(c => c.loadUri(URI_EPISODIO, false, cap.ini));
     }
   }
 
   function pararAudio() {
-    if (controle) controle.pause();
+    if (controle) sp(c => c.pause());
     ativo = null;
     tocando = false;
     dock.hidden = true;
@@ -1626,7 +1653,7 @@ main {
     if (!cap || !spotify) return; // sem player: o link abre o capítulo no Spotify
     e.preventDefault();
     if (ativo && ativo.chave === cap.chave && controle) {
-      if (tocando) controle.pause(); else controle.resume();
+      if (tocando) sp(c => c.pause()); else sp(c => c.resume());
     } else {
       tocarCapitulo(cap);
     }
