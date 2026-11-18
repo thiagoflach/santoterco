@@ -673,6 +673,6 @@ window.IMAGENS = {
     { "arquivo": "imagens/luminosos-2.jpg", "autor": "Maerten de Vos (1597)" },
     { "arquivo": "imagens/luminosos-3.jpg", "autor": "Carl Heinrich Bloch (1890)" },
     { "arquivo": "imagens/luminosos-4.jpg", "autor": "Gerard David (1505)" },
-    null
+    { "arquivo": "imagens/luminosos-5.jpg", "autor": "Dieric Bouts (1468)" }
   ]
 };
