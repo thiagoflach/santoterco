@@ -659,7 +659,7 @@ window.IMAGENS = {
     { "arquivo": "imagens/dolorosos-2.jpg", "autor": "William-Adolphe Bouguereau (1880)" },
     { "arquivo": "imagens/dolorosos-3.jpg", "autor": "Carl Heinrich Bloch (1880)" },
     { "arquivo": "imagens/dolorosos-4.jpg", "autor": "Mel Gibson · Filme: A Paixão de Cristo (2004)" },
-    null
+    { "arquivo": "imagens/dolorosos-5.jpg", "autor": "Peter Paul Rubens (1617)" }
   ],
   "gloriosos": [null, null, null, null, null],
   "luminosos": [null, null, null, null, null]
