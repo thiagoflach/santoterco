@@ -762,7 +762,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 22px;
-  background: radial-gradient(circle at 50% 44%, rgba(70, 54, 16, .55), rgba(6, 10, 8, .97) 62%);
+  background: radial-gradient(circle at 50% 40%, rgba(70, 54, 16, .6), rgba(7, 11, 9, 0) 62%), #070b09;
   animation: fade .8s ease;
   cursor: pointer;
   overflow: hidden;
@@ -783,8 +783,8 @@ main {
 @keyframes luzPulsa { 0%, 100% { opacity: .55; transform: translate(-50%, -50%) scale(.92); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); } }
 .rosa-img {
   position: relative;
-  width: min(54vw, 250px);
-  max-height: 58vh;
+  width: min(44vw, 200px);
+  max-height: 36vh;
   object-fit: contain;
   animation: rosaEntra 1.8s cubic-bezier(.2, .8, .3, 1) both, rosaBrilho 2.6s ease-in-out 1.4s infinite;
 }
@@ -796,9 +796,11 @@ main {
   0%, 100% { filter: drop-shadow(0 0 12px rgba(255, 205, 100, .45)) brightness(1); }
   50% { filter: drop-shadow(0 0 38px rgba(255, 216, 125, .95)) brightness(1.16); }
 }
-.rosa-txt { position: relative; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; animation: fade 1.2s ease .9s both; }
+.rosa-txt { position: relative; margin: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; animation: fade 1.2s ease .9s both; padding-inline: 24px; text-align: center; }
+.rosa-cit { margin: 0; max-width: 34ch; display: flex; flex-direction: column; gap: 8px; }
+.rosa-cit p { margin: 0; font-family: var(--display); font-style: italic; font-size: 1.22rem; line-height: 1.4; color: #f6e7b8; text-shadow: 0 0 14px rgba(255, 210, 110, .35); text-wrap: pretty; }
+.rosa-cit cite { font-style: normal; font-size: 12px; font-weight: 600; letter-spacing: .08em; color: #d6c99a; }
 .rosa-txt span { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #d6c99a; }
-.rosa-txt b { font-family: var(--display); font-size: 2.6rem; font-weight: 600; color: #f6e7b8; text-shadow: 0 0 18px rgba(255, 210, 110, .55); }
 .rosa-brilhos { position: absolute; inset: 0; pointer-events: none; }
 .brilho {
   position: absolute;
@@ -1046,7 +1048,10 @@ main {
   <div class="rosa-luz"></div>
   <div class="rosa-brilhos" id="rosaBrilhos"></div>
   <img class="rosa-img" src="imagens/rosa.png" alt="Rosa dourada">
-  <p class="rosa-txt"><span>Terço concluído</span><b>Amém</b></p>
+  <div class="rosa-txt">
+    <span>Terço concluído</span>
+    <blockquote class="rosa-cit"><p id="citTexto"></p><cite id="citFonte"></cite></blockquote>
+  </div>
 </div>
 
 <!-- Interruptor escondido: no iPhone, tocá-lo gera uma resposta tátil (o Safari não tem vibração) -->
@@ -1397,7 +1402,7 @@ main {
     }
 
     const s = fim
-      ? { secao: "Terço concluído", titulo: "Amém", contagem: "" }
+      ? { secao: "Terço concluído", titulo: "", contagem: "" }
       : passos[i];
     $("kicker").textContent = s.secao || "";
     $("mname").textContent = s.misterio ? conjunto().misterios[s.misterio - 1] : "";
@@ -1535,11 +1540,17 @@ main {
       b.style.transform = "scale(" + (.6 + Math.random()) + ")";
       cx.appendChild(b);
     }
+    // uma citação sorteada; a tela fica aberta pelo tempo de lê-la com calma
+    const lista = window.CITACOES || [];
+    const c = lista[Math.floor(Math.random() * lista.length)];
+    $("citTexto").textContent = c ? c.texto : "";
+    $("citFonte").textContent = c ? c.fonte : "";
+    const leitura = c ? Math.min(24000, 5000 + c.texto.length * 55) : 6500;
     el.classList.remove("saindo");
     el.hidden = false;
     vibrar([20, 80, 20, 80, 40]);
     manterTelaAcesa();
-    fimTimer = setTimeout(encerrarFim, 6500);
+    fimTimer = setTimeout(encerrarFim, leitura);
   }
   function encerrarFim() {
     const el = $("rosaFim");

@@ -726,3 +726,47 @@ window.COMPANHIA = {
   "inicio": "15:57",
   "fim": "19:26"
 };
+
+/*
+  CITAÇÕES DO FIM DO TERÇO
+  Uma delas é sorteada e aparece abaixo de "Terço concluído", junto com a rosa.
+  "texto" + " - " + "fonte" reproduz a citação exatamente como foi enviada.
+*/
+window.CITACOES = [
+  {
+    "texto": "O amor à nossa Mãe será sopro que atice em fogo vivo as brasas de virtude que estão ocultas sob o rescaldo da tua tibieza.",
+    "fonte": "Caminho 492"
+  },
+  {
+    "texto": "A Virgem Dolorosa… Quando a contemplares, repara em seu Coração. É uma Mãe com dois filhos, frente a frente: Ele… e tu.",
+    "fonte": "Caminho 506"
+  },
+  {
+    "texto": "Antes, sozinho, não podias… - Agora, recorreste à Senhora, e, com Ela, que fácil!",
+    "fonte": "Caminho 513"
+  },
+  {
+    "texto": "Procura o convívio com as três Pessoas, com Deus Pai, com Deus Filho, com Deus Espírito Santo. E para chegares à Trindade Santíssima, passa por Maria.",
+    "fonte": "Forja 543"
+  },
+  {
+    "texto": "Coloca-te muito perto da tua Mãe, a Santíssima Virgem. - Tu deves estar sempre unido a Deus: procura a união com Ele junto da sua Mãe bendita.",
+    "fonte": "Forja 568"
+  },
+  {
+    "texto": "Deves ter uma devoção intensa à Nossa Mãe. Ela sabe corresponder com primor às delicadezas que lhe manifestamos. Além disso, se rezas o terço todos os dias, com espírito de fé e amor, a Senhora se encarregará de levar-te muito longe pelo caminho do seu Filho.",
+    "fonte": "Sulco 691"
+  },
+  {
+    "texto": "Sem o auxílio de Nossa Mãe, como havemos de manter-nos firmes na luta diária? - Procuras esse auxílio constantemente?",
+    "fonte": "Sulco 692"
+  },
+  {
+    "texto": "Sempre que te vejas com o coração seco, sem saber o que dizer, recorre com confiança à Virgem Santíssima. Dize-lhe: Minha Mãe Imaculada, intercedei por mim. Se a invocares com fé, Ela te fará saborear - no meio dessa secura - a proximidade de Deus.",
+    "fonte": "Sulco 695"
+  },
+  {
+    "texto": "Recorre todos os dias, em confidência e com segurança, à Santíssima Virgem. A tua alma e a tua vida sairão reconfortadas. Ela te fará participar dos tesouros que guarda no seu coração, pois \"nunca se ouviu dizer que algum daqueles que tenha recorrido à sua protecção fosse por Ela desamparado\".",
+    "fonte": "Sulco 768"
+  }
+];
