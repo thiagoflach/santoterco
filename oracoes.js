@@ -656,7 +656,8 @@ window.IMAGENS = {
   ],
   "dolorosos": [
     { "arquivo": "imagens/dolorosos-1.jpg", "autor": "Heinrich Hofmann (1890)" },
-    null, null, null, null
+    { "arquivo": "imagens/dolorosos-2.jpg", "autor": "William-Adolphe Bouguereau (1880)" },
+    null, null, null
   ],
   "gloriosos": [null, null, null, null, null],
   "luminosos": [null, null, null, null, null]
