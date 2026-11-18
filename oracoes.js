@@ -668,5 +668,8 @@ window.IMAGENS = {
     { "arquivo": "imagens/gloriosos-4.jpg", "autor": "Manoel da Costa Ataíde (1804)" },
     { "arquivo": "imagens/gloriosos-5.jpg", "autor": "Diego Velázquez (1636)" }
   ],
-  "luminosos": [null, null, null, null, null]
+  "luminosos": [
+    { "arquivo": "imagens/luminosos-1.jpg", "autor": "Bartolomé Esteban Murillo (1655)" },
+    null, null, null, null
+  ]
 };
