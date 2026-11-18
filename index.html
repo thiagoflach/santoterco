@@ -330,14 +330,18 @@ main {
 .count:empty, .mname:empty, .kicker:empty { display: none; }
 
 /* Tema e idioma sempre à vista, no canto da área do terço */
-.quick {
+/* Dois blocos simétricos no alto da área do terço:
+   à esquerda tema e idioma, à direita Meditação e Imagem; mesmas alturas e espaçamentos */
+.quick, .acts {
   position: absolute;
   top: 6px;
-  left: 0;
   z-index: 2;
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
+.quick { left: 0; align-items: flex-start; }
+.acts { right: 0; align-items: stretch; }
 .mini {
   display: inline-flex;
   padding: 3px;
@@ -348,8 +352,8 @@ main {
 }
 .mini button {
   height: 32px;
-  min-width: 36px;
-  padding: 0 9px;
+  width: 42px;
+  padding: 0;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -366,11 +370,8 @@ main {
 
 /* Botão da imagem do mistério */
 .imgbtn {
-  position: absolute;
-  top: 6px;
-  right: 0;
-  z-index: 2;
   height: 40px;
+  justify-content: flex-start;
   padding: 0 14px 0 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
@@ -385,9 +386,7 @@ main {
   animation: fade .4s ease;
 }
 .imgbtn svg { width: 17px; height: 17px; flex: none; }
-/* Meditação em cima, Imagem logo abaixo */
-#imgBtn { top: 54px; }
-.imgbtn.audbtn { top: 6px; text-decoration: none; }
+.imgbtn.audbtn { text-decoration: none; }
 
 /* Imagem do mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
 .viewer {
@@ -747,6 +746,7 @@ main {
       <button type="button" id="linguaPt" data-lingua="pt" aria-label="Orações em português">PT</button>
     </div>
   </div>
+  <div class="acts">
   <a class="imgbtn audbtn" id="vAudio" href="#" target="_blank" rel="noopener" hidden aria-label="Ouvir a meditação do mistério">
     <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
     <span id="vAudioLbl">Meditação</span>
@@ -754,6 +754,7 @@ main {
   <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
   </button>
+  </div>
 </main>
 
 <div class="dock" id="dock" hidden>
