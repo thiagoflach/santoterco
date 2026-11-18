@@ -664,6 +664,7 @@ main {
 }
 /* Crédito discreto no rodapé dos Ajustes */
 .credit { margin: 4px 0 0; text-align: center; font-size: 12px; color: var(--muted); }
+.credit-home { margin: -6px 0 0; padding-bottom: 6px; flex: none; }
 .linkbtn { border: 0; background: none; padding: 4px 2px; font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Tela de mensagem */
@@ -792,6 +793,7 @@ main {
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5C8.5 4 6 3.5 3 4v11.5c3-.5 5.5 0 7 1.5 1.5-1.5 4-2 7-1.5V4c-3-.5-5.5 0-7 1.5zM10 5.5V17"/></svg><span id="textLbl">Ver oração</span>
   </button>
 </footer>
+<p class="credit credit-home">Criado por Thiago K. Flach · <button class="linkbtn" id="msgBtn" type="button">Enviar uma mensagem</button></p>
 
 <div class="sheet-wrap" id="prayerSheet" hidden>
   <div class="backdrop" data-close></div>
@@ -856,7 +858,6 @@ main {
         <div class="opt-label">Terço</div>
         <button class="btn wide" id="resetBtn" type="button">Recomeçar do início</button>
       </div>
-      <p class="credit">Criado por Thiago K. Flach · <button class="linkbtn" id="msgBtn" type="button">Enviar uma mensagem</button></p>
     </div>
   </section>
 </div>
