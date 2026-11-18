@@ -676,3 +676,43 @@ window.IMAGENS = {
     { "arquivo": "imagens/luminosos-5.jpg", "autor": "Dieric Bouts (1468)" }
   ]
 };
+
+/*
+  ÁUDIO DOS MISTÉRIOS (Spotify)
+  Um único episódio, dividido em capítulos. Cada mistério toca do seu "inicio" até o início
+  do capítulo seguinte (o último vai até o fim do episódio, em "duracao").
+*/
+window.AUDIO = {
+  "episodio": "1ApyKVnt7ElemWmJpH9PGl",
+  "duracao": "26:51",
+  "capitulos": {
+    "gozosos": [
+      { "inicio": "00:00", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mzvZF4FUlfU3Gng" },
+      { "inicio": "01:14", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mzos1Uq5s3wKr7z" },
+      { "inicio": "02:27", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mzo4Gn6GakA1bY8" },
+      { "inicio": "03:34", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mznFb7CXjNGzYau" },
+      { "inicio": "04:50", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mzGqZRbm6TjNbhk" }
+    ],
+    "luminosos": [
+      { "inicio": "05:58", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFrE3F93AnlBNdJ" },
+      { "inicio": "07:15", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFEPf0aU8s3hbB9" },
+      { "inicio": "09:06", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFD8gORBzMa6UoE" },
+      { "inicio": "10:43", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFneqF3ClxBzaOt" },
+      { "inicio": "12:11", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFIZWStMiRTcGgG" }
+    ],
+    "dolorosos": [
+      { "inicio": "13:52", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFFTOg8wFUqq06Z" },
+      { "inicio": "15:11", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFDYHWEQXNzZSXh" },
+      { "inicio": "16:41", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFC0PBmjeVtnNJc" },
+      { "inicio": "17:58", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFowxW3A49FD9yA" },
+      { "inicio": "19:22", "link": "https://open.spotify.com/podcast-chapter/0347Yl3mFzbHrz2jyS3f0L" }
+    ],
+    "gloriosos": [
+      { "inicio": "20:41", "link": "https://open.spotify.com/podcast-chapter/0347YTyPTpfcSwr7j3UxPt" },
+      { "inicio": "22:01", "link": "https://open.spotify.com/podcast-chapter/0347YTyPToxY3HeM5fPL91" },
+      { "inicio": "23:13", "link": "https://open.spotify.com/podcast-chapter/0347YTyPTvqKzdc5WLmBGh" },
+      { "inicio": "24:28", "link": "https://open.spotify.com/podcast-chapter/0347YTyPTF6cjrgJspE4ht" },
+      { "inicio": "25:41", "link": "https://open.spotify.com/podcast-chapter/0347YTyPTITWXGzygXFpBN" }
+    ]
+  }
+};

@@ -425,6 +425,30 @@ main {
 .v-kicker { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #d6c99a; }
 .v-name { font-family: var(--display); font-style: italic; font-size: 1.45rem; line-height: 1.2; text-wrap: balance; max-width: 30ch; }
 .v-autor { font-size: 12px; color: #a6a078; letter-spacing: .03em; }
+.v-audio {
+  margin-top: 10px;
+  height: 46px;
+  padding: 0 20px 0 16px;
+  border-radius: 999px;
+  border: 0;
+  background: #d6c99a;
+  color: #17251f;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+.v-audio svg { width: 18px; height: 18px; flex: none; }
+
+/* Player do Spotify, que fica acima da barra de progresso enquanto o áudio do mistério toca */
+.dock { display: flex; align-items: center; gap: 8px; margin-top: 6px; animation: fade .3s ease; }
+.dock-player { flex: 1; min-width: 0; height: 80px; border-radius: 12px; overflow: hidden; background: var(--raised); }
+.dock-player iframe { display: block; border: 0; border-radius: 12px; }
+
 .v-close {
   position: absolute;
   top: calc(12px + env(safe-area-inset-top, 0px));
@@ -700,6 +724,13 @@ main {
   </button>
 </main>
 
+<div class="dock" id="dock" hidden>
+  <div class="dock-player" id="dockPlayer"><div id="spotifyEmbed"></div></div>
+  <button class="iconbtn" id="dockClose" type="button" aria-label="Parar o áudio">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+  </button>
+</div>
+
 <div class="progress"><span id="bar"></span></div>
 
 <footer class="bottom">
@@ -797,6 +828,10 @@ main {
       <span class="v-kicker" id="vKicker"></span>
       <span class="v-name" id="vName"></span>
       <span class="v-autor" id="vAutor"></span>
+      <a class="v-audio" id="vAudio" href="#" target="_blank" rel="noopener" hidden>
+        <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
+        <span id="vAudioLbl">Ouvir a meditação</span>
+      </a>
     </figcaption>
   </figure>
   <button class="iconbtn v-close" id="viewerClose" type="button" aria-label="Fechar a imagem">
@@ -817,6 +852,7 @@ main {
   const MISTERIOS = window.MISTERIOS;
   const MISTERIOS_DO_DIA = window.MISTERIOS_DO_DIA;
   const IMAGENS = window.IMAGENS || {};
+  const AUDIO = window.AUDIO || null;
   const DIAS = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
   /* ---------- Estrutura do terço ----------
@@ -1157,6 +1193,7 @@ main {
     const img = imagemAtual();
     $("imgBtn").hidden = !img;
     if (img) new Image().src = img.arquivo; // já carrega a imagem, para abrir na hora
+    sincronizarAudio();
     if (ultimo !== -1 && ultimo !== i) {
       center.classList.remove("swap");
       void center.offsetWidth;
@@ -1397,6 +1434,110 @@ main {
     $("viewerClose").focus({ preventScroll: true });
   });
   viewer.addEventListener("click", () => { viewer.hidden = true; });
+
+  /* ---------- Áudio do mistério (player do Spotify) ---------- */
+
+  const PLAY = '<path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/>';
+  const PAUSE = '<rect x="5" y="4" width="3.6" height="12" rx="1"/><rect x="11.4" y="4" width="3.6" height="12" rx="1"/>';
+  const emSegundos = t => { const p = t.split(":").map(Number); return p[0] * 60 + p[1]; };
+  const URI_EPISODIO = AUDIO ? "spotify:episode:" + AUDIO.episodio : "";
+
+  // trecho do episódio que pertence ao mistério atual: do seu início até o início do próximo capítulo
+  function capituloAtual() {
+    const s = passos[state.idx];
+    if (!AUDIO || !s || !s.misterio) return null;
+    const lista = AUDIO.capitulos[state.set];
+    const c = lista && lista[s.misterio - 1];
+    if (!c) return null;
+    const ini = emSegundos(c.inicio);
+    const depois = Object.values(AUDIO.capitulos).flat().map(x => emSegundos(x.inicio)).filter(t => t > ini);
+    const fim = depois.length ? Math.min.apply(null, depois) : emSegundos(AUDIO.duracao);
+    return { ini: ini, fim: fim, link: c.link, chave: state.set + "-" + s.misterio };
+  }
+
+  let spotify = null, controle = null, semPlayer = false, ativo = null, tocando = false, ajustar = false;
+  const dock = $("dock");
+
+  function carregarSpotify() {
+    if (spotify || semPlayer || document.getElementById("spotifyApi")) return;
+    window.onSpotifyIframeApiReady = api => { spotify = api; semPlayer = false; atualizarBotaoAudio(); };
+    const sc = document.createElement("script");
+    sc.id = "spotifyApi";
+    sc.src = "https://open.spotify.com/embed/iframe-api/v1";
+    sc.async = true;
+    sc.onerror = () => { semPlayer = true; atualizarBotaoAudio(); };
+    document.head.appendChild(sc);
+    // onde o player não pode ser carregado, o botão abre o capítulo no Spotify
+    setTimeout(() => { if (!spotify) { semPlayer = true; atualizarBotaoAudio(); } }, 7000);
+  }
+
+  function atualizarBotaoAudio() {
+    const cap = capituloAtual(), b = $("vAudio");
+    b.hidden = !cap;
+    if (!cap) return;
+    b.href = cap.link;
+    const meu = ativo && ativo.chave === cap.chave && tocando;
+    $("vAudioIco").innerHTML = meu ? PAUSE : PLAY;
+    $("vAudioLbl").textContent = !spotify && semPlayer ? "Ouvir no Spotify" : meu ? "Pausar a meditação" : "Ouvir a meditação";
+  }
+
+  function tocarCapitulo(cap) {
+    ativo = cap;
+    ajustar = true;
+    dock.hidden = false;
+    if (!controle) {
+      spotify.createController($("spotifyEmbed"), { uri: URI_EPISODIO, width: "100%", height: 80 }, c => {
+        controle = c;
+        controle.addListener("ready", () => {
+          if (!ativo) return;
+          controle.loadUri(URI_EPISODIO, false, ativo.ini);
+          controle.play();
+        });
+        controle.addListener("playback_update", e => {
+          const d = e.data, pos = d.position / 1000;
+          tocando = !d.isPaused;
+          if (ativo && tocando) {
+            // garante que começa no capítulo certo e para antes do próximo
+            if (ajustar && (pos < ativo.ini - 1 || pos > ativo.fim)) controle.seek(ativo.ini);
+            else if (pos >= ativo.fim - .3) { controle.pause(); controle.seek(ativo.ini); tocando = false; }
+            if (pos >= ativo.ini - 1 && pos < ativo.fim) ajustar = false;
+          }
+          atualizarBotaoAudio();
+        });
+      });
+    } else {
+      controle.loadUri(URI_EPISODIO, false, cap.ini);
+      controle.play();
+    }
+  }
+
+  function pararAudio() {
+    if (controle) controle.pause();
+    ativo = null;
+    tocando = false;
+    dock.hidden = true;
+  }
+
+  // ao mudar de mistério, o áudio do anterior para
+  function sincronizarAudio() {
+    const cap = capituloAtual();
+    if (cap) carregarSpotify();
+    if (ativo && (!cap || cap.chave !== ativo.chave)) pararAudio();
+    atualizarBotaoAudio();
+  }
+
+  $("vAudio").addEventListener("click", e => {
+    e.stopPropagation(); // não fecha a imagem
+    const cap = capituloAtual();
+    if (!cap || !spotify) return; // sem player: o link abre o capítulo no Spotify
+    e.preventDefault();
+    if (ativo && ativo.chave === cap.chave && controle) {
+      if (tocando) controle.pause(); else controle.resume();
+    } else {
+      tocarCapitulo(cap);
+    }
+  });
+  $("dockClose").addEventListener("click", pararAudio);
   // arrastar para baixo fecha a imagem
   let y0 = null, dy = 0;
   viewer.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; dy = 0; fig.style.transition = "none"; }, { passive: true });
