@@ -595,6 +595,36 @@ main {
   color: var(--muted);
 }
 .sheet-sub:empty { display: none; }
+.body-wrap { position: relative; display: flex; flex-direction: column; min-height: 0; flex: 0 1 auto; }
+.body-wrap.rolavel .sheet-body { padding-right: 52px; }
+.autoscroll {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--shadow);
+}
+.autoscroll button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+}
+.autoscroll button svg { width: 16px; height: 16px; }
+.autoscroll button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 .sheet-body {
   overflow-y: auto;
   -webkit-user-select: text;
@@ -808,7 +838,16 @@ main {
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
       </button>
     </div>
-    <div class="sheet-body" id="sheetBody"></div>
+    <div class="body-wrap">
+      <div class="sheet-body" id="sheetBody"></div>
+      <!-- rolagem automática: só aparece quando o texto é maior que a tela -->
+      <div class="autoscroll" id="autoScroll" role="group" aria-label="Rolagem automática" hidden>
+        <button type="button" id="rolarBtn" aria-label="Iniciar rolagem automática">
+          <svg id="rolarIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
+        </button>
+        <button type="button" id="velBtn" aria-label="Velocidade da rolagem">1×</button>
+      </div>
+    </div>
     <button class="btn primary wide" id="sheetNext" type="button">Próxima conta
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l6 6-6 6"/></svg>
     </button>
@@ -1193,7 +1232,7 @@ main {
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
     if (s && s.date === hojeStr && MISTERIOS[s.set] && s.idx >= 0 && s.idx <= passos.length) state = s;
   } catch (e) {}
-  let ajustes = { tema: "escuro", lingua: "la", som: true, vib: true };
+  let ajustes = { tema: "escuro", lingua: "la", som: true, vib: true, rolagem: 1 };
   try {
     const a2 = JSON.parse(localStorage.getItem(KEY_AJUSTES) || "null");
     if (a2) {
@@ -1201,6 +1240,7 @@ main {
       if (a2.lingua === "la" || a2.lingua === "pt") ajustes.lingua = a2.lingua;
       if (typeof a2.som === "boolean") ajustes.som = a2.som;
       if (typeof a2.vib === "boolean") ajustes.vib = a2.vib;
+      if ([0.5, 1, 1.5, 2].includes(a2.rolagem)) ajustes.rolagem = a2.rolagem;
     }
   } catch (e) {}
   function salvar() {
@@ -1454,7 +1494,66 @@ main {
     body.textContent = "";
     s.oracoes.forEach(k => body.appendChild(blocoOracao(k)));
     body.scrollTop = 0;
+    pararRolagem();
+    requestAnimationFrame(verificarRolagem);
   }
+
+  /* ---------- Rolagem automática do texto da oração ---------- */
+
+  const VELOCIDADES = [0.5, 1, 1.5, 2];
+  const PX_POR_SEG = 24; // velocidade 1×: ritmo calmo de leitura
+  let rolando = false, posRol = 0, ultimoT = 0, tocandoTexto = false;
+  const corpo = $("sheetBody");
+
+  function verificarRolagem() {
+    const cabe = corpo.scrollHeight <= corpo.clientHeight + 8;
+    $("autoScroll").hidden = cabe;
+    corpo.parentElement.classList.toggle("rolavel", !cabe);
+    $("velBtn").textContent = String(ajustes.rolagem).replace(".", ",") + "×";
+  }
+  function iconeRolagem() {
+    $("rolarIco").innerHTML = rolando
+      ? '<rect x="5" y="4" width="3.6" height="12" rx="1"/><rect x="11.4" y="4" width="3.6" height="12" rx="1"/>'
+      : '<path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/>';
+    $("rolarBtn").setAttribute("aria-pressed", rolando);
+    $("rolarBtn").setAttribute("aria-label", rolando ? "Pausar rolagem automática" : "Iniciar rolagem automática");
+  }
+  function passoRolagem(t) {
+    if (!rolando) return;
+    const dt = Math.min(.1, (t - ultimoT) / 1000);
+    ultimoT = t;
+    if (!tocandoTexto) {
+      posRol += PX_POR_SEG * ajustes.rolagem * dt;
+      corpo.scrollTop = posRol;
+      if (corpo.scrollTop + corpo.clientHeight >= corpo.scrollHeight - 1) { pararRolagem(); return; }
+    }
+    requestAnimationFrame(passoRolagem);
+  }
+  function iniciarRolagem() {
+    if (corpo.scrollTop + corpo.clientHeight >= corpo.scrollHeight - 1) corpo.scrollTop = 0; // no fim: recomeça do topo
+    rolando = true;
+    posRol = corpo.scrollTop;
+    ultimoT = performance.now();
+    iconeRolagem();
+    manterTelaAcesa();
+    requestAnimationFrame(passoRolagem);
+  }
+  function pararRolagem() {
+    rolando = false;
+    iconeRolagem();
+  }
+  $("rolarBtn").addEventListener("click", () => { if (rolando) pararRolagem(); else iniciarRolagem(); });
+  $("velBtn").addEventListener("click", () => {
+    const i = VELOCIDADES.indexOf(ajustes.rolagem);
+    ajustes.rolagem = VELOCIDADES[(i + 1) % VELOCIDADES.length];
+    verificarRolagem();
+    salvar();
+  });
+  // se a pessoa arrastar o texto, a rolagem continua a partir dali
+  corpo.addEventListener("touchstart", () => { tocandoTexto = true; }, { passive: true });
+  corpo.addEventListener("touchend", () => { tocandoTexto = false; posRol = corpo.scrollTop; }, { passive: true });
+  corpo.addEventListener("scroll", () => { if (Math.abs(corpo.scrollTop - posRol) > 3) posRol = corpo.scrollTop; }, { passive: true });
+  window.addEventListener("resize", () => { if (!$("prayerSheet").hidden) verificarRolagem(); });
 
   function abrirFolha(id) {
     $(id).hidden = false;
@@ -1462,6 +1561,7 @@ main {
     if (x) x.focus({ preventScroll: true });
   }
   function fecharFolhas() {
+    if (typeof pararRolagem === "function") pararRolagem();
     ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet"].forEach(id => { $(id).hidden = true; });
   }
   document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", fecharFolhas));
