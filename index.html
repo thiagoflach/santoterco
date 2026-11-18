@@ -773,6 +773,10 @@ main {
       <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
       <span id="vAudioLbl">Meditação</span>
     </a>
+    <a class="imgbtn audbtn" id="cAudio" href="#" target="_blank" rel="noopener" hidden aria-label="Ouvir a Companhia">
+      <svg id="cAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
+      <span>Companhia</span>
+    </a>
     <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
     </button>
@@ -1628,12 +1632,12 @@ main {
   });
   viewer.addEventListener("click", () => { viewer.hidden = true; });
 
-  /* ---------- Áudio do mistério (player do Spotify) ---------- */
+  /* ---------- Áudio pelo player do Spotify: meditação dos mistérios e Companhia da Ladainha ---------- */
 
   const PLAY = '<path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/>';
   const PAUSE = '<rect x="5" y="4" width="3.6" height="12" rx="1"/><rect x="11.4" y="4" width="3.6" height="12" rx="1"/>';
   const emSegundos = t => { const p = t.split(":").map(Number); return p[0] * 60 + p[1]; };
-  const URI_EPISODIO = AUDIO ? "spotify:episode:" + AUDIO.episodio : "";
+  const COMPANHIA = window.COMPANHIA || null;
 
   // trecho do episódio que pertence ao mistério atual: do seu início até o início do próximo capítulo
   function capituloAtual() {
@@ -1645,7 +1649,18 @@ main {
     const ini = emSegundos(c.inicio);
     const depois = Object.values(AUDIO.capitulos).flat().map(x => emSegundos(x.inicio)).filter(t => t > ini);
     const fim = depois.length ? Math.min.apply(null, depois) : emSegundos(AUDIO.duracao);
-    return { ini: ini, fim: fim, link: c.link, chave: state.set + "-" + s.misterio };
+    return { uri: "spotify:episode:" + AUDIO.episodio, ini: ini, fim: fim, link: c.link, chave: state.set + "-" + s.misterio };
+  }
+
+  // Companhia: só durante a Ladainha, com as orações em latim
+  function companhiaAtual() {
+    const s = passos[state.idx];
+    if (!COMPANHIA || !s || s.oracao !== "ladainha" || ajustes.lingua !== "la") return null;
+    const ini = emSegundos(COMPANHIA.inicio);
+    return {
+      uri: "spotify:episode:" + COMPANHIA.episodio, ini: ini, fim: emSegundos(COMPANHIA.fim),
+      link: "https://open.spotify.com/episode/" + COMPANHIA.episodio + "?t=" + ini, chave: "companhia"
+    };
   }
 
   let spotify = null, controle = null, semPlayer = false, ativo = null, tocando = false, ajustar = false;
@@ -1660,19 +1675,24 @@ main {
     sc.async = true;
     sc.onerror = () => { semPlayer = true; atualizarBotaoAudio(); };
     document.head.appendChild(sc);
-    // onde o player não pode ser carregado, o botão abre o capítulo no Spotify
+    // onde o player não pode ser carregado, o botão abre o trecho no Spotify
     setTimeout(() => { if (!spotify) { semPlayer = true; atualizarBotaoAudio(); } }, 7000);
   }
 
+  const BOTOES = [
+    { el: "vAudio", ico: "vAudioIco", trecho: capituloAtual, nome: "a meditação" },
+    { el: "cAudio", ico: "cAudioIco", trecho: companhiaAtual, nome: "a Companhia" }
+  ];
   function atualizarBotaoAudio() {
-    const cap = capituloAtual(), b = $("vAudio");
-    b.hidden = !cap;
-    if (!cap) return;
-    b.href = cap.link;
-    const meu = ativo && ativo.chave === cap.chave && tocando;
-    $("vAudioIco").innerHTML = meu ? PAUSE : PLAY;
-    $("vAudioLbl").textContent = "Meditação"; // o ícone mostra se está tocando (pausa) ou parado (play)
-    b.setAttribute("aria-label", meu ? "Pausar a meditação" : "Ouvir a meditação");
+    BOTOES.forEach(bt => {
+      const cap = bt.trecho(), b = $(bt.el);
+      b.hidden = !cap;
+      if (!cap) return;
+      b.href = cap.link;
+      const meu = ativo && ativo.chave === cap.chave && tocando;
+      $(bt.ico).innerHTML = meu ? PAUSE : PLAY; // o ícone mostra se está tocando (pausa) ou parado (play)
+      b.setAttribute("aria-label", (meu ? "Pausar " : "Ouvir ") + bt.nome);
+    });
   }
 
   // comandos ao player do Spotify: uma falha dele nunca pode atrapalhar o terço
@@ -1681,23 +1701,28 @@ main {
     try { const r = acao(controle); if (r && typeof r.catch === "function") r.catch(() => {}); } catch (err) {}
   }
 
-  // O episódio é carregado uma única vez, já no início do capítulo.
-  // Para trocar de mistério, o player só pula para o ponto certo (sem recarregar).
-  let carregado = false, pedirPlay = false, jaTocou = false;
-  function tocarCapitulo(cap) {
+  // Cada episódio é carregado uma única vez, já no ponto do trecho.
+  // No mesmo episódio, trocar de trecho só pula para o ponto certo (sem recarregar).
+  let carregado = false, pedirPlay = false, jaTocou = false, uriCarregada = null;
+  function carregarTrecho(cap) {
+    uriCarregada = cap.uri;
+    jaTocou = false;
+    pedirPlay = true;
+    sp(c => c.loadUri(cap.uri, false, cap.ini));
+    setTimeout(() => { if (pedirPlay && ativo === cap) { pedirPlay = false; sp(c => c.play()); } }, 1500);
+  }
+  function tocarTrecho(cap) {
     ativo = cap;
     ajustar = true;
     dock.hidden = false;
     if (!controle) {
-      spotify.createController($("spotifyEmbed"), { uri: URI_EPISODIO, width: "100%", height: 80 }, c => {
+      spotify.createController($("spotifyEmbed"), { uri: cap.uri, width: "100%", height: 80 }, c => {
         controle = c;
         controle.addListener("ready", () => {
           if (!ativo) return;
           if (!carregado) {
             carregado = true;
-            pedirPlay = true;
-            sp(c => c.loadUri(URI_EPISODIO, false, ativo.ini)); // recarrega uma vez, já no ponto do capítulo
-            setTimeout(() => { if (pedirPlay) { pedirPlay = false; sp(c => c.play()); } }, 1500);
+            carregarTrecho(ativo); // recarrega uma vez, já no ponto do trecho
           } else if (pedirPlay) {
             pedirPlay = false;
             sp(c => c.play());
@@ -1708,12 +1733,12 @@ main {
           tocando = !d.isPaused;
           if (tocando) jaTocou = true;
           if (ativo && tocando) {
-            // se começou fora do capítulo, pula uma única vez para o início dele
+            // se começou fora do trecho, pula uma única vez para o início dele
             if (ajustar) {
               ajustar = false;
               if (pos < ativo.ini - 2 || pos > ativo.fim) sp(c => c.seek(ativo.ini));
             } else if (pos >= ativo.fim - .3) {
-              // chegou ao início do próximo capítulo: para e volta ao começo deste
+              // chegou ao fim do trecho: para e volta ao começo dele
               sp(c => c.pause());
               sp(c => c.seek(ativo.ini));
               tocando = false;
@@ -1722,13 +1747,11 @@ main {
           atualizarBotaoAudio();
         });
       });
-    } else if (jaTocou) {
+    } else if (uriCarregada === cap.uri && jaTocou) {
       sp(c => c.seek(cap.ini));
       sp(c => c.resume());
     } else {
-      // o áudio ainda não tocou: carrega de novo, uma vez, no ponto deste capítulo
-      pedirPlay = true;
-      sp(c => c.loadUri(URI_EPISODIO, false, cap.ini));
+      carregarTrecho(cap); // outro episódio, ou ainda não tocou: carrega uma vez no ponto certo
     }
   }
 
@@ -1739,25 +1762,25 @@ main {
     dock.hidden = true;
   }
 
-  // ao mudar de mistério, o áudio do anterior para
+  // ao mudar de mistério (ou sair da Ladainha), o áudio anterior para
   function sincronizarAudio() {
-    const cap = capituloAtual();
+    const cap = capituloAtual() || companhiaAtual();
     if (cap) carregarSpotify();
     if (ativo && (!cap || cap.chave !== ativo.chave)) pararAudio();
     atualizarBotaoAudio();
   }
 
-  $("vAudio").addEventListener("click", e => {
+  BOTOES.forEach(bt => $(bt.el).addEventListener("click", e => {
     e.stopPropagation(); // tocar o áudio não passa a conta
-    const cap = capituloAtual();
-    if (!cap || !spotify) return; // sem player: o link abre o capítulo no Spotify
+    const cap = bt.trecho();
+    if (!cap || !spotify) return; // sem player: o link abre o trecho no Spotify
     e.preventDefault();
     if (ativo && ativo.chave === cap.chave && controle) {
       if (tocando) sp(c => c.pause()); else sp(c => c.resume());
     } else {
-      tocarCapitulo(cap);
+      tocarTrecho(cap);
     }
-  });
+  }));
   $("dockClose").addEventListener("click", pararAudio);
   // arrastar para baixo fecha a imagem
   let y0 = null, dy = 0;

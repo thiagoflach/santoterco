@@ -716,3 +716,13 @@ window.AUDIO = {
     ]
   }
 };
+
+/*
+  COMPANHIA (Spotify)
+  Durante a Ladainha, com as orações em latim, o botão "Companhia" toca este trecho do episódio.
+*/
+window.COMPANHIA = {
+  "episodio": "6evbEetOndo4JrdJABFVUg",
+  "inicio": "15:57",
+  "fim": "19:26"
+};
