@@ -654,7 +654,10 @@ window.IMAGENS = {
     { "arquivo": "imagens/gozosos-4.jpg", "autor": "Andey Shishkin (2012)" },
     { "arquivo": "imagens/gozosos-5.jpg", "autor": "Philippe de Champaigne (1663)" }
   ],
-  "dolorosos": [null, null, null, null, null],
+  "dolorosos": [
+    { "arquivo": "imagens/dolorosos-1.jpg", "autor": "Heinrich Hofmann (1890)" },
+    null, null, null, null
+  ],
   "gloriosos": [null, null, null, null, null],
   "luminosos": [null, null, null, null, null]
 };
