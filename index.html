@@ -135,12 +135,73 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
 .setname svg { width: 14px; height: 14px; opacity: .7; flex: none; }
 .top-right { display: flex; align-items: center; gap: 10px; padding-bottom: 2px; }
 .step {
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  box-shadow: var(--shadow);
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
+.step svg { width: 15px; height: 15px; flex: none; }
+
+/* Balanço do terço a cada toque: a volta oscila presa no alto, o pingente balança um pouco mais */
+#terco { transform-origin: 180px 26px; }
+#pend { transform-origin: 180px 338px; }
+#terco.sway { animation: sway 1.1s cubic-bezier(.3, .6, .4, 1); }
+#terco.sway #pend { animation: sway-pend 1.3s cubic-bezier(.3, .6, .4, 1); }
+@keyframes sway {
+  0% { transform: rotate(0); }
+  14% { transform: rotate(calc(var(--dir) * 1.5deg)); }
+  36% { transform: rotate(calc(var(--dir) * -1deg)); }
+  58% { transform: rotate(calc(var(--dir) * .55deg)); }
+  80% { transform: rotate(calc(var(--dir) * -.22deg)); }
+  100% { transform: rotate(0); }
+}
+@keyframes sway-pend {
+  0% { transform: rotate(0); }
+  18% { transform: rotate(calc(var(--dir) * -2.6deg)); }
+  40% { transform: rotate(calc(var(--dir) * 1.9deg)); }
+  62% { transform: rotate(calc(var(--dir) * -1.1deg)); }
+  82% { transform: rotate(calc(var(--dir) * .45deg)); }
+  100% { transform: rotate(0); }
+}
+
+/* Lista de posições do terço */
+.jump { overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-bottom: 4px; min-height: 0; }
+.jump h4 {
+  margin: 14px 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.jump h4:first-child { margin-top: 0; }
+.jump h4 small { display: block; margin-top: 2px; font-family: var(--display); font-style: italic; font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--muted); font-weight: 500; }
+.jitem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  text-align: left;
+  font-size: 15px;
+}
+.jitem span:last-child { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; flex: none; }
+.jitem.feito { color: var(--muted); }
+.jitem.atual { border-color: var(--accent); background: var(--sel); color: var(--fg); font-weight: 600; }
 .iconbtn {
   width: 40px;
   height: 40px;
@@ -478,7 +539,7 @@ main {
 .seg button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 
 @media (prefers-reduced-motion: reduce) {
-  .halo-c, .center.swap, .ripple, .sheet, .backdrop { animation: none; }
+  .halo-c, .center.swap, .ripple, .sheet, .backdrop, #terco.sway, #terco.sway #pend { animation: none; }
   .b, #halo, .progress span { transition-duration: .01s; }
 }
 </style>
@@ -493,7 +554,10 @@ main {
     </span>
   </button>
   <div class="top-right">
-    <span class="step" id="stepLbl"></span>
+    <button id="stepBtn" class="step" type="button" aria-haspopup="dialog" aria-label="Ir para uma posição do terço">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r=".9" fill="currentColor"/><circle cx="3.5" cy="10" r=".9" fill="currentColor"/><circle cx="3.5" cy="15" r=".9" fill="currentColor"/></svg>
+      <span id="stepLbl"></span>
+    </button>
     <button id="optBtn" class="iconbtn" type="button" aria-haspopup="dialog" aria-label="Ajustes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
@@ -584,9 +648,40 @@ main {
           <button type="button" id="linguaPt" data-lingua="pt">Português</button>
         </div>
       </div>
+      <div>
+        <div class="opt-label" id="lblSom">Som ao passar a conta</div>
+        <div class="seg" role="group" aria-labelledby="lblSom">
+          <button type="button" id="somOn" data-som="1">Ligado</button>
+          <button type="button" id="somOff" data-som="0">Desligado</button>
+        </div>
+      </div>
+      <div>
+        <div class="opt-label" id="lblVib">Vibração</div>
+        <div class="seg" role="group" aria-labelledby="lblVib">
+          <button type="button" id="vibOn" data-vib="1">Ligada</button>
+          <button type="button" id="vibOff" data-vib="0">Desligada</button>
+        </div>
+      </div>
     </div>
   </section>
 </div>
+
+<div class="sheet-wrap" id="jumpSheet" hidden>
+  <div class="backdrop" data-close></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="jumpTitle">
+    <div class="grab"></div>
+    <div class="sheet-head">
+      <h2 id="jumpTitle">Ir para</h2>
+      <button class="iconbtn" type="button" data-close aria-label="Fechar">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+      </button>
+    </div>
+    <div class="jump" id="jumpList"></div>
+  </section>
+</div>
+
+<!-- Interruptor escondido: no iPhone, tocá-lo gera uma resposta tátil (o Safari não tem vibração) -->
+<label id="hapticLbl" aria-hidden="true" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 
 <!-- Textos das orações e nomes dos mistérios: edite em oracoes.js -->
 <script src="oracoes.js"></script>
@@ -711,17 +806,20 @@ main {
   const fimPingente = pingente(1);
 
   // Corrente de elos de metal (sombra + elos)
-  const corrente = el("g", {});
+  const terco = el("g", { id: "terco" });
+  const corrente = el("g", {}, terco);
+  const pend = el("g", { id: "pend" }, terco);
+  const correntePend = el("g", {}, pend);
   const dCurva = "M" + curva.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L") + "Z";
   const pp = Array.from({ length: 21 }, (_, i) => pingente(i / 20));
   const dPing = "M" + pp.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L");
-  [dCurva, dPing].forEach(d => {
-    el("path", { d: d, class: "chain-shadow", transform: "translate(.8 1.8)" }, corrente);
-    el("path", { d: d, class: "chain-under" }, corrente);
-    el("path", { d: d, class: "chain-links" }, corrente);
+  [[dCurva, corrente], [dPing, correntePend]].forEach(([d, pai]) => {
+    el("path", { d: d, class: "chain-shadow", transform: "translate(.8 1.8)" }, pai);
+    el("path", { d: d, class: "chain-under" }, pai);
+    el("path", { d: d, class: "chain-links" }, pai);
   });
 
-  const halo = el("g", { id: "halo" });
+  const halo = el("g", { id: "halo" }, terco);
   el("circle", { r: 20, cx: 0, cy: 0, fill: "url(#gHalo)", class: "halo-c" }, halo);
 
   const contas = {}, pos = {};
@@ -791,8 +889,9 @@ main {
     return [cx, top + 26];
   }
 
+  const NO_PINGENTE = new Set(["p0", "p1", "p2", "p3", "p4", "cruz"]);
   function addConta(id, x, y, tipo) {
-    const g = el("g", { class: "b " + tipo });
+    const g = el("g", { class: "b " + tipo }, NO_PINGENTE.has(id) ? pend : terco);
     if (tipo === "cross") { const c = cruz(g); x = c[0]; y = c[1]; }
     else pedra(g, x, y, RAIO[tipo]);
     g.style.transformOrigin = x + "px " + y + "px";
@@ -838,12 +937,14 @@ main {
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
     if (s && s.date === hojeStr && MISTERIOS[s.set] && s.idx >= 0 && s.idx <= passos.length) state = s;
   } catch (e) {}
-  let ajustes = { tema: "escuro", lingua: "la" };
+  let ajustes = { tema: "escuro", lingua: "la", som: true, vib: true };
   try {
     const a2 = JSON.parse(localStorage.getItem(KEY_AJUSTES) || "null");
     if (a2) {
       if (a2.tema === "claro" || a2.tema === "escuro") ajustes.tema = a2.tema;
       if (a2.lingua === "la" || a2.lingua === "pt") ajustes.lingua = a2.lingua;
+      if (typeof a2.som === "boolean") ajustes.som = a2.som;
+      if (typeof a2.vib === "boolean") ajustes.vib = a2.vib;
     }
   } catch (e) {}
   function salvar() {
@@ -869,6 +970,10 @@ main {
     $("temaClaro").setAttribute("aria-pressed", ajustes.tema === "claro");
     $("linguaLa").setAttribute("aria-pressed", ajustes.lingua === "la");
     $("linguaPt").setAttribute("aria-pressed", ajustes.lingua === "pt");
+    $("somOn").setAttribute("aria-pressed", ajustes.som);
+    $("somOff").setAttribute("aria-pressed", !ajustes.som);
+    $("vibOn").setAttribute("aria-pressed", ajustes.vib);
+    $("vibOff").setAttribute("aria-pressed", !ajustes.vib);
   }
 
   function renderCabecalho() {
@@ -892,7 +997,12 @@ main {
     });
 
     if (!fim && !grupo) {
-      const p = pos[passos[i].contas[0]];
+      const id0 = passos[i].contas[0];
+      const p = pos[id0];
+      // o brilho fica no mesmo grupo da conta, para balançar junto com ela
+      const pai = NO_PINGENTE.has(id0) ? pend : terco;
+      const antes = NO_PINGENTE.has(id0) ? contas.p4 : contas.L1;
+      if (halo.parentNode !== pai || halo.nextSibling !== antes) pai.insertBefore(halo, antes);
       halo.style.transform = "translate(" + p.x + "px," + p.y + "px) scale(" + p.s + ")";
       halo.style.opacity = 1;
     } else {
@@ -925,15 +1035,65 @@ main {
     salvar();
   }
 
+  /* ---------- Resposta ao toque: vibração, som de pedra e balanço ---------- */
+
+  const hapticLbl = $("hapticLbl");
   function vibrar(padrao) {
-    try { if (navigator.vibrate) navigator.vibrate(padrao); } catch (e) {}
+    if (!ajustes.vib) return;
+    try {
+      if (navigator.vibrate) { navigator.vibrate(padrao); return; }
+      // iPhone: alternar um interruptor nativo produz um toque tátil curto
+      hapticLbl.click();
+    } catch (e) {}
+  }
+
+  // Som de duas pedras se tocando, gerado na hora (sem arquivo de áudio)
+  let audio = null;
+  function somDePedra(forte) {
+    if (!ajustes.som) return;
+    try {
+      if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === "suspended") audio.resume();
+      const t0 = audio.currentTime + .005;
+      const batida = (t, vol, freq) => {
+        // estalo: ruído curto filtrado na faixa aguda
+        const dur = .045, n = Math.floor(audio.sampleRate * dur);
+        const buf = audio.createBuffer(1, n, audio.sampleRate), ch = buf.getChannelData(0);
+        for (let i = 0; i < n; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 6);
+        const src = audio.createBufferSource(); src.buffer = buf;
+        const bp = audio.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 5;
+        const g = audio.createGain(); g.gain.value = vol;
+        src.connect(bp).connect(g).connect(audio.destination);
+        src.start(t);
+        // ressonância da pedra: um "tic" agudo que some rápido
+        const o = audio.createOscillator(), og = audio.createGain();
+        o.type = "sine"; o.frequency.setValueAtTime(freq * 1.35, t);
+        og.gain.setValueAtTime(vol * .35, t); og.gain.exponentialRampToValueAtTime(.0001, t + .06);
+        o.connect(og).connect(audio.destination); o.start(t); o.stop(t + .07);
+      };
+      const f = 2600 + Math.random() * 900;
+      batida(t0, forte ? .9 : .6, f);
+      batida(t0 + .03 + Math.random() * .025, forte ? .35 : .22, f * (1.1 + Math.random() * .2));
+    } catch (e) {}
+  }
+
+  const tercoEl = document.getElementById("terco");
+  let direcao = 1;
+  function balancar() {
+    direcao = -direcao;
+    tercoEl.style.setProperty("--dir", direcao);
+    tercoEl.classList.remove("sway");
+    void tercoEl.getBoundingClientRect();
+    tercoEl.classList.add("sway");
   }
 
   function avancar() {
     if (state.idx >= passos.length) return;
     state.idx++;
     const s = passos[state.idx];
-    vibrar(s && s.novo ? [18, 70, 18] : 12);
+    vibrar(s && s.novo ? [14, 60, 14] : 10);
+    somDePedra(!!(s && s.novo));
+    balancar();
     hint.classList.add("gone");
     manterTelaAcesa();
     render();
@@ -945,6 +1105,7 @@ main {
     if (state.idx === 0) return;
     state.idx--;
     vibrar(8);
+    somDePedra(false);
     render();
     if (!$("prayerSheet").hidden) preencherOracao();
   }
@@ -962,7 +1123,7 @@ main {
     avancar();
   });
 
-  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet"].some(id => !$(id).hidden);
+  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") { fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
@@ -1033,7 +1194,7 @@ main {
     if (x) x.focus({ preventScroll: true });
   }
   function fecharFolhas() {
-    ["prayerSheet", "setSheet", "optSheet"].forEach(id => { $(id).hidden = true; });
+    ["prayerSheet", "setSheet", "optSheet", "jumpSheet"].forEach(id => { $(id).hidden = true; });
   }
   document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", fecharFolhas));
 
@@ -1075,6 +1236,61 @@ main {
   }
   $("setBtn").addEventListener("click", () => { preencherConjuntos(); abrirFolha("setSheet"); });
 
+  /* ---------- Ir para uma posição ---------- */
+
+  function preencherLista() {
+    const list = $("jumpList");
+    list.textContent = "";
+    let grupoAtual = null, atualEl = null;
+    passos.forEach((p, i) => {
+      const chave = p.secao || null;
+      if (chave && chave !== grupoAtual) {
+        const h = document.createElement("h4");
+        h.textContent = p.secao;
+        if (p.misterio) {
+          const m = document.createElement("small");
+          m.textContent = conjunto().misterios[p.misterio - 1];
+          h.appendChild(m);
+        }
+        list.appendChild(h);
+      } else if (!chave && grupoAtual !== null) {
+        if (i < 10) {
+          const sp = document.createElement("div");
+          sp.style.height = "10px";
+          list.appendChild(sp);
+        } else {
+          const h = document.createElement("h4");
+          h.textContent = "Orações finais";
+          list.appendChild(h);
+        }
+      }
+      grupoAtual = chave;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "jitem" + (i === state.idx ? " atual" : i < state.idx ? " feito" : "");
+      const t = document.createElement("span"); t.textContent = p.titulo;
+      const c = document.createElement("span"); c.textContent = p.contagem || "";
+      b.appendChild(t); b.appendChild(c);
+      b.addEventListener("click", () => {
+        state.idx = i;
+        hint.classList.add("gone");
+        vibrar(10);
+        somDePedra(false);
+        balancar();
+        render();
+        fecharFolhas();
+      });
+      list.appendChild(b);
+      if (i === state.idx) atualEl = b;
+    });
+    return atualEl;
+  }
+  $("stepBtn").addEventListener("click", () => {
+    const atual = preencherLista();
+    abrirFolha("jumpSheet");
+    if (atual) atual.scrollIntoView({ block: "center" });
+  });
+
   /* ---------- Ajustes ---------- */
 
   $("optBtn").addEventListener("click", () => abrirFolha("optSheet"));
@@ -1082,6 +1298,18 @@ main {
     ajustes.tema = b.dataset.tema;
     aplicarTema();
     salvar();
+  }));
+  document.querySelectorAll("[data-som]").forEach(b => b.addEventListener("click", () => {
+    ajustes.som = b.dataset.som === "1";
+    aplicarTema();
+    salvar();
+    if (ajustes.som) somDePedra(false);
+  }));
+  document.querySelectorAll("[data-vib]").forEach(b => b.addEventListener("click", () => {
+    ajustes.vib = b.dataset.vib === "1";
+    aplicarTema();
+    salvar();
+    if (ajustes.vib) vibrar(12);
   }));
   document.querySelectorAll("[data-lingua]").forEach(b => b.addEventListener("click", () => {
     ajustes.lingua = b.dataset.lingua;
