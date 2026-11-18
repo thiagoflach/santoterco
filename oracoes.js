@@ -664,7 +664,8 @@ window.IMAGENS = {
   "gloriosos": [
     { "arquivo": "imagens/gloriosos-1.jpg", "autor": "Carl Heinrich Bloch (1875)" },
     { "arquivo": "imagens/gloriosos-2.jpg", "autor": "Gebhard Fugel (1894)" },
-    null, null, null
+    { "arquivo": "imagens/gloriosos-3.jpg", "autor": "Acisclo Antonio Palomino y Velasco (1705)" },
+    null, null
   ],
   "luminosos": [null, null, null, null, null]
 };
