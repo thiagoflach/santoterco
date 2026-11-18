@@ -650,7 +650,8 @@ window.IMAGENS = {
   "gozosos": [
     { "arquivo": "imagens/gozosos-1.jpg", "autor": "Luca Giordano (1672)" },
     { "arquivo": "imagens/gozosos-2.jpg", "autor": "Carl Heinrich Bloch (1866)" },
-    null, null, null
+    { "arquivo": "imagens/gozosos-3.jpg", "autor": "Philippe de Champaigne (1643)" },
+    null, null
   ],
   "dolorosos": [null, null, null, null, null],
   "gloriosos": [null, null, null, null, null],
