@@ -670,6 +670,7 @@ window.IMAGENS = {
   ],
   "luminosos": [
     { "arquivo": "imagens/luminosos-1.jpg", "autor": "Bartolomé Esteban Murillo (1655)" },
-    null, null, null, null
+    { "arquivo": "imagens/luminosos-2.jpg", "autor": "Maerten de Vos (1597)" },
+    null, null, null
   ]
 };
