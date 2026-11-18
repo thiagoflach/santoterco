@@ -733,6 +733,15 @@ main {
     p.push({ titulo: "Para as necessidades da Igreja e do Estado", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
     p.push({ titulo: "Para a pessoa e as intenções do senhor Bispo desta Diocese", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
     p.push({ titulo: "Para as benditas almas do Purgatório", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
+    // Passos cujo título é o nome de uma oração: na tela, o nome segue o idioma das orações
+    const NOME_DA_ORACAO = {
+      "Adoração ao Santíssimo Sacramento": "adoracao", "Comunhão Espiritual": "comunhaoEspiritual",
+      "Sinal da Santa Cruz": "sinalDaCruz", "Ato de Contrição": "atoDeContricao",
+      "Pai Nosso": "paiNosso", "Ave Maria": "aveMaria", "Glória ao Pai": "gloria", "Oração de Fátima": "oracaoDeFatima",
+      "Ave Maria, Filha de Deus Pai": "aveFilha", "Ave Maria, Mãe de Deus Filho": "aveMae",
+      "Ave Maria, Esposa de Deus Espírito Santo": "aveEsposa", "Ladainha a Nossa Senhora": "ladainha"
+    };
+    p.forEach(x => { if (NOME_DA_ORACAO[x.titulo]) x.oracao = NOME_DA_ORACAO[x.titulo]; });
     return p;
   }
   const passos = montarPassos();
@@ -961,6 +970,7 @@ main {
   let ultimo = -1;
 
   const conjunto = () => MISTERIOS[state.set][ajustes.lingua];
+  const tituloDe = p => p.oracao ? ORACOES[ajustes.lingua][p.oracao].titulo : p.titulo;
 
   function aplicarTema() {
     document.documentElement.setAttribute("data-tema", ajustes.tema);
@@ -1015,7 +1025,7 @@ main {
     $("kicker").textContent = s.secao || "";
     $("mname").textContent = s.misterio ? conjunto().misterios[s.misterio - 1] : "";
     const t = $("ptitle");
-    t.textContent = s.titulo || "";
+    t.textContent = fim ? s.titulo : tituloDe(s);
     t.classList.toggle("long", t.textContent.length > 22 && t.textContent.length <= 38);
     t.classList.toggle("xlong", t.textContent.length > 38);
     $("count").textContent = s.contagem || "";
@@ -1176,7 +1186,7 @@ main {
 
   function preencherOracao() {
     const s = passos[state.idx];
-    $("sheetTitle").textContent = s.titulo;
+    $("sheetTitle").textContent = tituloDe(s);
     const sub = [];
     if (s.secao) sub.push(s.secao);
     if (s.misterio) sub.push(conjunto().misterios[s.misterio - 1]);
@@ -1268,7 +1278,7 @@ main {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "jitem" + (i === state.idx ? " atual" : i < state.idx ? " feito" : "");
-      const t = document.createElement("span"); t.textContent = p.titulo;
+      const t = document.createElement("span"); t.textContent = tituloDe(p);
       const c = document.createElement("span"); c.textContent = p.contagem || "";
       b.appendChild(t); b.appendChild(c);
       b.addEventListener("click", () => {
