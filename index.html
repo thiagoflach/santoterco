@@ -479,17 +479,6 @@ main {
 .dock { display: flex; align-items: center; gap: 8px; margin-top: 6px; animation: fade .3s ease; }
 .dock-player { flex: 1; min-width: 0; height: 80px; border-radius: 12px; overflow: hidden; background: var(--raised); }
 .dock-player iframe { display: block; border: 0; border-radius: 12px; }
-/* Companhia: o player toca escondido (continua na tela, invisível, para o navegador não suspendê-lo) */
-.dock.oculto {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 320px;
-  margin: 0;
-  opacity: 0;
-  pointer-events: none;
-  z-index: -1;
-}
 
 .v-close {
   position: absolute;
@@ -1955,15 +1944,10 @@ main {
     sp(c => c.loadUri(cap.uri, false, cap.ini));
     setTimeout(() => { if (pedirPlay && ativo === cap) { pedirPlay = false; sp(c => c.play()); } }, 1500);
   }
-  let revelarTimer = null;
   function tocarTrecho(cap) {
     ativo = cap;
     ajustar = true;
     dock.hidden = false;
-    // a Companhia toca sem mostrar o player; se o celular não deixar começar sozinho, ele aparece para um toque
-    dock.classList.toggle("oculto", cap.chave === "companhia");
-    clearTimeout(revelarTimer);
-    if (cap.chave === "companhia") revelarTimer = setTimeout(() => { if (ativo === cap && !tocando) dock.classList.remove("oculto"); }, 4000);
     if (!controle) {
       spotify.createController($("spotifyEmbed"), { uri: cap.uri, width: "100%", height: 80 }, c => {
         controle = c;
@@ -2005,7 +1989,6 @@ main {
   }
 
   function pararAudio() {
-    clearTimeout(revelarTimer);
     pendente = null;
     if (controle) sp(c => c.pause());
     ativo = null;
