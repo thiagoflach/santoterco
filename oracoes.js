@@ -262,6 +262,12 @@ window.ORACOES = {
         "",
         "> Amen."
       ]
+    },
+    "requiescant": {
+      "titulo": "",
+      "texto": [
+        "Requiescant in pace."
+      ]
     }
   },
   "pt": {
@@ -530,6 +536,12 @@ window.ORACOES = {
         "> Infundi, Senhor, nós vos pedimos, em nossas almas a vossa graça, para que nós, que conhecemos pela Anunciação do Anjo a Encarnação de Jesus Cristo, vosso Filho, cheguemos por sua Paixão e sua Cruz à glória da ressurreição. Pelo mesmo Jesus Cristo, Senhor Nosso.",
         "",
         "> Amém."
+      ]
+    },
+    "requiescant": {
+      "titulo": "",
+      "texto": [
+        "Descansem em paz."
       ]
     }
   }

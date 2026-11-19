@@ -1109,7 +1109,7 @@ main {
     p.push({ titulo: "Ladainha a Nossa Senhora", contas: TODAS, oracoes: ["ladainha"] });
     p.push({ titulo: "Para as necessidades da Igreja e do Estado", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
     p.push({ titulo: "Para a pessoa e as intenções do senhor Bispo desta Diocese", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
-    p.push({ titulo: "Para as benditas almas do Purgatório", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "gloria"] });
+    p.push({ titulo: "Para as benditas almas do Purgatório", contas: TODAS, oracoes: ["paiNosso", "aveMaria", "requiescant"] });
     // Passos cujo título é o nome de uma oração: na tela, o nome segue o idioma das orações
     const NOME_DA_ORACAO = {
       "Adoração ao Santíssimo Sacramento": "adoracao", "Comunhão Espiritual": "comunhaoEspiritual",
@@ -1648,9 +1648,11 @@ main {
     const o = ORACOES[ajustes.lingua][chave];
     const box = document.createElement("div");
     box.className = "prayer";
-    const h = document.createElement("h3");
-    h.textContent = o.titulo;
-    box.appendChild(h);
+    if (o.titulo) { // frases finais (ex.: "Descansem em paz.") não têm título próprio
+      const h = document.createElement("h3");
+      h.textContent = o.titulo;
+      box.appendChild(h);
+    }
     let p = null;
     o.texto.forEach(linha => {
       if (linha === "") { p = null; return; }
