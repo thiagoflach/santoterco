@@ -655,8 +655,8 @@ window.MISTERIOS = {
 
 /*
   IMAGENS DOS MISTÉRIOS
-  Uma imagem por mistério, na pasta "imagens". Use null enquanto não houver imagem:
-  nesse mistério o botão da imagem não aparece.
+  Uma imagem por Mistério, na pasta "imagens". Use null enquanto não houver imagem:
+  nesse Mistério o botão da imagem não aparece.
 */
 window.IMAGENS = {
   "gozosos": [
@@ -691,7 +691,7 @@ window.IMAGENS = {
 
 /*
   ÁUDIO DOS MISTÉRIOS (Spotify)
-  Um único episódio, dividido em capítulos. Cada mistério toca do seu "inicio" até o início
+  Um único episódio, dividido em capítulos. Cada Mistério toca do seu "inicio" até o início
   do capítulo seguinte (o último vai até o fim do episódio, em "duracao").
 */
 window.AUDIO = {

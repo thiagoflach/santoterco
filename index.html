@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: uma tela só. Cabeçalho com o mistério do dia, o terço desenhado no centro (toque = próxima conta), ações embaixo.
+/* Layout: uma tela só. Cabeçalho com o Mistério do dia, o terço desenhado no centro (toque = próxima conta), ações embaixo.
    Visual de capela: contas de pérola que viram ouro ao serem rezadas. Dois temas, escolhidos no app (escuro é o padrão). */
 :root {
   /* Escuro: paleta verde-floresta e areia. Contas = diamantes claros. */
@@ -153,7 +153,7 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
 .setname svg { width: 14px; height: 14px; opacity: .7; flex: none; }
 .top-right { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; }
 .ajudabtn { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
-/* celulares estreitos: cabeçalho mais compacto, para o nome dos mistérios caber numa linha */
+/* celulares estreitos: cabeçalho mais compacto, para o nome dos Mistérios caber numa linha */
 @media (max-width: 400px) {
   .top { gap: 8px; }
   .top-right { gap: 6px; }
@@ -411,7 +411,7 @@ main {
 .mini button svg { width: 16px; height: 16px; }
 .mini button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 
-/* Botão da imagem do mistério */
+/* Botão da imagem do Mistério */
 .imgbtn {
   height: 38px;
   justify-content: flex-start;
@@ -431,7 +431,7 @@ main {
 .imgbtn svg { width: 17px; height: 17px; flex: none; }
 .imgbtn.audbtn { text-decoration: none; }
 
-/* Imagem do mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
+/* Imagem do Mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
 .viewer {
   position: fixed;
   inset: 0;
@@ -489,7 +489,7 @@ main {
 }
 .v-audio svg { width: 18px; height: 18px; flex: none; }
 
-/* Player do Spotify, que fica acima da barra de progresso enquanto o áudio do mistério toca */
+/* Player do Spotify, que fica acima da barra de progresso enquanto o áudio do Mistério toca */
 .dock { display: flex; align-items: center; gap: 8px; margin-top: 6px; animation: fade .3s ease; }
 .dock-player { flex: 1; min-width: 0; height: 80px; border-radius: 12px; overflow: hidden; background: var(--raised); }
 .dock-player iframe { display: block; border: 0; border-radius: 12px; }
@@ -576,7 +576,7 @@ main {
 .btn.warn { border-color: var(--accent); color: var(--accent); }
 .btn.wide { width: 100%; flex: none; }
 
-/* Folhas (oração, mistérios, ajustes) */
+/* Folhas (oração, Mistérios, ajustes) */
 .sheet-wrap {
   position: fixed;
   inset: 0;
@@ -1014,7 +1014,7 @@ main {
 <body>
 
 <header class="top">
-  <button id="setBtn" class="setbtn" type="button" aria-haspopup="dialog" aria-label="Escolher os mistérios">
+  <button id="setBtn" class="setbtn" type="button" aria-haspopup="dialog" aria-label="Escolher os Mistérios">
     <span class="day" id="dayLbl">Hoje</span>
     <span class="setname"><span id="setLbl">Mistérios</span>
       <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
@@ -1043,7 +1043,7 @@ main {
       </div>
     </div>
     <div class="col-meio">
-      <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do mistério">
+      <button class="imgbtn" id="imgBtn" type="button" hidden aria-label="Ver a imagem do Mistério">
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem
       </button>
     </div>
@@ -1070,7 +1070,7 @@ main {
     </div>
   </div>
   <!-- áudio nos cantos de baixo (o pingente e a cruz ficam no centro): Meditação à esquerda, Auxílio à direita -->
-  <button class="imgbtn audbtn canto-esq" id="vAudio" type="button" hidden aria-label="Ouvir a meditação do mistério">
+  <button class="imgbtn audbtn canto-esq" id="vAudio" type="button" hidden aria-label="Ouvir a meditação do Mistério">
   <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
   <span id="vAudioLbl">Meditação</span>
   </button>
@@ -1224,7 +1224,7 @@ main {
   </section>
 </div>
 
-<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Imagem do mistério">
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Imagem do Mistério">
   <div class="viewer-bg"></div>
   <figure class="viewer-fig" id="viewerFig">
     <img id="viewerImg" alt="">
@@ -1279,9 +1279,9 @@ main {
     </section>
 
     <section>
-      <h3>3. Os mistérios do dia</h3>
-      <p>O terço já abre com os <b>mistérios do dia da semana</b>. O nome aparece no alto, à esquerda.</p>
-      <p>Quer rezar outros mistérios? <b>Toque no nome</b> e escolha.</p>
+      <h3>3. Os Mistérios do dia</h3>
+      <p>O terço já abre com os <b>Mistérios do dia da semana</b>. O nome aparece no alto, à esquerda.</p>
+      <p>Quer rezar outros Mistérios? <b>Toque no nome</b> e escolha.</p>
     </section>
 
     <section>
@@ -1296,24 +1296,24 @@ main {
     </section>
 
     <section>
-      <h3>5. Durante cada mistério</h3>
+      <h3>5. Durante cada Mistério</h3>
       <ul class="lista">
-        <li><span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem</span> Mostra uma <b>pintura do mistério</b>, para ajudar a contemplar. Toque nela para fechar.</li>
-        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Meditação</span> Toca a <b>meditação do mistério</b> (áudio). Toque de novo para pausar.</li>
-        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Auxílio</span> Aparece na <b>Ladainha em latim</b> e toca o áudio para acompanhar.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem</span> Mostra uma <b>pintura do Mistério</b>, para ajudar a contemplar. Toque nela para fechar.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Meditação</span> Toca a <b>meditação do Mistério</b>, segundo os escritos de <b>São Josemaria Escrivá</b> no livro <b>“Santo Rosário”</b>. Toque de novo para pausar.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Auxílio</span> Recurso de áudio que aparece em <b>momentos específicos</b>, para lhe acompanhar na oração.</li>
       </ul>
     </section>
 
     <section>
       <h3>6. Os sons</h3>
-      <p>Cada toque faz o som de uma <b>pedrinha</b>. No fim de cada dezena toca um <b>sininho</b>. No fim do terço, <b>três sininhos</b>.</p>
+      <p>Cada toque faz o som de uma <b>pedrinha</b>. No fim de cada dezena toca um <b>sininho</b>, para avisar que chegou o <b>“Glória ao Pai”</b>. No fim do terço, <b>três sininhos</b>.</p>
       <p>Para rezar em silêncio, desligue o som nos <b>Ajustes</b>.</p>
     </section>
 
     <section>
       <h3>7. Momentos especiais</h3>
       <p>Na <b>Comunhão Espiritual</b> aparece o ostensório, com a oração. Toque para continuar.</p>
-      <p>No <b>fim do terço</b> aparece uma rosa dourada com uma frase de São Josemaria. Depois o terço recomeça.</p>
+      <p>No <b>fim do terço</b> aparece uma rosa dourada (Rosa de Rialp) com uma frase de São Josemaria sobre o amor a Nossa Senhora. Depois o terço recomeça no mesmo Mistério, até que você troque.</p>
     </section>
 
     <section>
@@ -1347,7 +1347,7 @@ main {
 <!-- Interruptor escondido: no iPhone, tocá-lo gera uma resposta tátil (o Safari não tem vibração) -->
 <label id="hapticLbl" aria-hidden="true" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 
-<!-- Textos das orações e nomes dos mistérios: edite em oracoes.js -->
+<!-- Textos das orações e nomes dos Mistérios: edite em oracoes.js -->
 <script src="oracoes.js"></script>
 <script>
 (function () {
@@ -1574,7 +1574,7 @@ main {
     pos[id] = { x: x, y: y, s: HALO[tipo] };
   }
 
-  // Volta: começa na conta da junção (Pai Nosso do 1º mistério) e sobe pelo lado direito
+  // Volta: começa na conta da junção (Pai Nosso do 1º Mistério) e sobe pelo lado direito
   const volta = [{ id: "L1", t: "junction", w: 2.6 }];
   for (let k = 1; k <= 5; k++) {
     if (k > 1) volta.push({ id: "L" + k, t: "large", w: 1.9 });
@@ -1611,7 +1611,7 @@ main {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) || "null");
     // mesmo dia: volta exatamente onde parou. Dia seguinte: só continua se o terço estava em andamento
-    // há menos de 6 horas (rezando perto da meia-noite); senão começa de novo, com os mistérios do dia
+    // há menos de 6 horas (rezando perto da meia-noite); senão começa de novo, com os Mistérios do dia
     const valido = s && MISTERIOS[s.set] && s.idx >= 0 && s.idx < passos.length;
     const recente = s && s.t && (Date.now() - s.t) < 6 * 3600 * 1000;
     if (valido && (s.date === hojeStr || (s.idx > 0 && recente))) state = { date: s.date, set: s.set, idx: s.idx, t: s.t };
@@ -1658,7 +1658,7 @@ main {
     $("vibOff").setAttribute("aria-pressed", !ajustes.vib);
   }
 
-  // o nome dos mistérios diminui só o necessário para caber numa linha (cada tela e cada nome é diferente)
+  // o nome dos Mistérios diminui só o necessário para caber numa linha (cada tela e cada nome é diferente)
   function ajustarNome() {
     const el = document.querySelector(".setname");
     el.style.fontSize = "";
@@ -2158,7 +2158,7 @@ main {
   });
   $("sheetNext").addEventListener("click", avancar);
 
-  /* ---------- Escolha dos mistérios ---------- */
+  /* ---------- Escolha dos Mistérios ---------- */
 
   function preencherConjuntos() {
     const list = $("setList");
@@ -2189,7 +2189,7 @@ main {
   }
   $("setBtn").addEventListener("click", () => { preencherConjuntos(); abrirFolha("setSheet"); });
 
-  /* ---------- Imagem do mistério ---------- */
+  /* ---------- Imagem do Mistério ---------- */
 
   function imagemAtual() {
     const s = passos[state.idx];
@@ -2213,14 +2213,14 @@ main {
   });
   viewer.addEventListener("click", () => { viewer.hidden = true; });
 
-  /* ---------- Áudio pelo player do Spotify: meditação dos mistérios e Auxílio da Ladainha ---------- */
+  /* ---------- Áudio pelo player do Spotify: meditação dos Mistérios e Auxílio da Ladainha ---------- */
 
   const PLAY = '<path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/>';
   const PAUSE = '<rect x="5" y="4" width="3.6" height="12" rx="1"/><rect x="11.4" y="4" width="3.6" height="12" rx="1"/>';
   const emSegundos = t => { const p = t.split(":").map(Number); return p[0] * 60 + p[1]; };
   const COMPANHIA = window.AUXILIO || null;
 
-  // trecho do episódio que pertence ao mistério atual: do seu início até o início do próximo capítulo
+  // trecho do episódio que pertence ao Mistério atual: do seu início até o início do próximo capítulo
   function capituloAtual() {
     const s = passos[state.idx];
     if (!AUDIO || !s || !s.misterio) return null;
@@ -2363,7 +2363,7 @@ main {
     dock.hidden = true;
   }
 
-  // ao mudar de mistério (ou sair da Ladainha), o áudio anterior para
+  // ao mudar de Mistério (ou sair da Ladainha), o áudio anterior para
   function sincronizarAudio() {
     const cap = capituloAtual() || companhiaAtual();
     if (cap) carregarSpotify();
