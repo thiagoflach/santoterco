@@ -78,9 +78,9 @@ window.ORACOES = {
       ]
     },
     "oracaoDeFatima": {
-      "titulo": "Oração de Fátima",
+      "titulo": "Oratio Fatimae",
       "texto": [
-        "Ó meu Jesus, perdoai-nos, livrai-nos do fogo do inferno, levai as almas todas para o céu e socorrei principalmente as que mais precisarem."
+        "Domine Iesu, dimitte nobis debita nostra, salva nos ab igne inferiori, perduc in caelum omnes animas, praesertim eas, quae misericordiae tuae maxime indigent."
       ]
     },
     "aveFilha": {
