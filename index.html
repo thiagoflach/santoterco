@@ -1012,11 +1012,11 @@ main {
       <label class="fld"><span>Sua mensagem</span>
         <textarea id="msgTexto" rows="5" placeholder="Escreva aqui…" required></textarea>
       </label>
-      <label class="fld"><span>Seu nome (opcional)</span>
-        <input id="msgNome" type="text" autocomplete="name">
+      <label class="fld"><span>Seu nome</span>
+        <input id="msgNome" type="text" autocomplete="name" required>
       </label>
-      <label class="fld"><span>Seu e-mail, para receber resposta (opcional)</span>
-        <input id="msgEmail" type="email" autocomplete="email" inputmode="email">
+      <label class="fld"><span>Seu e-mail, para receber resposta</span>
+        <input id="msgEmail" type="email" autocomplete="email" inputmode="email" required>
       </label>
       <p class="msg-status" id="msgStatus" role="status"></p>
       <button class="btn primary wide" id="msgEnviar" type="submit">Enviar</button>
@@ -2087,8 +2087,11 @@ main {
     e.preventDefault();
     const texto = $("msgTexto").value.trim(), st = $("msgStatus"), btn = $("msgEnviar");
     st.className = "msg-status";
-    if (!texto) { st.textContent = "Escreva a mensagem antes de enviar."; $("msgTexto").focus(); return; }
     const nome = $("msgNome").value.trim(), email = $("msgEmail").value.trim();
+    // mensagem, nome e e-mail são obrigatórios
+    if (!texto) { st.textContent = "Escreva a mensagem antes de enviar."; $("msgTexto").focus(); return; }
+    if (!nome) { st.textContent = "Informe o seu nome."; $("msgNome").focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { st.textContent = "Informe um e-mail válido, para receber a resposta."; $("msgEmail").focus(); return; }
     btn.disabled = true; btn.textContent = "Enviando…";
     try {
       const r = await fetch("https://formsubmit.co/ajax/" + EMAIL_AUTOR, {
@@ -2099,8 +2102,8 @@ main {
           _template: "table",
           _captcha: "false",
           Tipo: tipoMsg,
-          Nome: nome || "(não informado)",
-          email: email || undefined,
+          Nome: nome,
+          email: email,
           Mensagem: texto
         })
       });
