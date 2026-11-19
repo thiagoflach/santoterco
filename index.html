@@ -1481,19 +1481,38 @@ main {
     } catch (e) {}
   }
 
-  // Sinete curto, fino e agudo: marca o fim de cada dezena (entrada do Glória)
+  // Sininho agudo com uma pequena reverberação: marca o fim de cada dezena (entrada do Glória)
+  let reverb = null;
+  function salaReverb(ac) {
+    // reverberação leve, gerada na hora: um eco curto e suave que vai sumindo
+    if (reverb) return reverb;
+    const dur = 1.4, n = Math.floor(ac.sampleRate * dur), ir = ac.createBuffer(2, n, ac.sampleRate);
+    for (let c = 0; c < 2; c++) {
+      const d = ir.getChannelData(c);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 3.2);
+    }
+    const conv = ac.createConvolver(); conv.buffer = ir;
+    const ret = ac.createGain(); ret.gain.value = .28;
+    conv.connect(ret).connect(ac.destination);
+    reverb = conv;
+    return reverb;
+  }
   function somDeSino() {
     if (!ajustes.som) return;
     try {
       const ac = ctxAudio(), t0 = ac.currentTime + .005, base = 1480;
-      // poucas parciais, todas agudas e com decaimento rápido: som limpo, sem "corpo" grave
-      [[1, .42, .32], [2.76, .12, .16], [5.4, .05, .08]].forEach(([r, vol, dur]) => {
+      const saida = ac.createGain(); saida.gain.value = 1;
+      saida.connect(ac.destination);
+      saida.connect(salaReverb(ac));
+      // parciais de sino: a fundamental soa por mais tempo, as agudas somem antes;
+      // duas fundamentais levemente desafinadas dão o "tremor" de um sininho de metal
+      [[1, .3, 1.5], [1.003, .14, 1.3], [2.76, .1, .55], [5.4, .04, .25]].forEach(([r, vol, dur]) => {
         const o = ac.createOscillator(), g = ac.createGain();
         o.type = "sine"; o.frequency.value = base * r;
         g.gain.setValueAtTime(0, t0);
         g.gain.linearRampToValueAtTime(vol, t0 + .003);
         g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
-        o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + .02);
+        o.connect(g).connect(saida); o.start(t0); o.stop(t0 + dur + .05);
       });
     } catch (e) {}
   }
