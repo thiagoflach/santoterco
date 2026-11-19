@@ -1943,7 +1943,17 @@ main {
 
   // Cada episódio é carregado uma única vez, já no ponto do trecho.
   // No mesmo episódio, trocar de trecho só pula para o ponto certo (sem recarregar).
-  let carregado = false, pedirPlay = false, jaTocou = false, uriCarregada = null;
+  let carregado = false, pedirPlay = false, jaTocou = false, uriCarregada = null, fimTimer2 = null;
+  function cancelarFim() { clearTimeout(fimTimer2); fimTimer2 = null; }
+  // chegou ao fim do trecho: para e volta ao começo dele
+  function fimDoTrecho() {
+    cancelarFim();
+    if (!ativo) return;
+    sp(c => c.pause());
+    sp(c => c.seek(ativo.ini));
+    tocando = false;
+    atualizarBotaoAudio();
+  }
   function carregarTrecho(cap) {
     uriCarregada = cap.uri;
     jaTocou = false;
@@ -1972,17 +1982,18 @@ main {
           const d = e.data, pos = d.position / 1000;
           tocando = !d.isPaused;
           if (tocando) jaTocou = true;
+          if (!tocando) cancelarFim();
           if (ativo && tocando) {
             // se começou fora do trecho, pula uma única vez para o início dele
             if (ajustar) {
               ajustar = false;
-              if (pos < ativo.ini - 2 || pos > ativo.fim) sp(c => c.seek(ativo.ini));
-            } else if (pos >= ativo.fim - .3) {
-              // chegou ao fim do trecho: para e volta ao começo dele
-              sp(c => c.pause());
-              sp(c => c.seek(ativo.ini));
-              tocando = false;
+              if (pos < ativo.ini - 2 || pos > ativo.fim) { sp(c => c.seek(ativo.ini)); return; }
             }
+            const falta = ativo.fim - pos;
+            if (falta <= 0) fimDoTrecho();
+            // o Spotify avisa a posição só de tempos em tempos: perto do fim, a pausa é agendada
+            // para o instante exato, em vez de esperar o próximo aviso
+            else if (falta <= 2.5) { cancelarFim(); fimTimer2 = setTimeout(fimDoTrecho, falta * 1000); }
           }
           atualizarBotaoAudio();
         });
@@ -1997,6 +2008,7 @@ main {
 
   function pararAudio() {
     pendente = null;
+    cancelarFim();
     if (controle) sp(c => c.pause());
     ativo = null;
     tocando = false;

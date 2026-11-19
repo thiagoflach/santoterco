@@ -732,11 +732,12 @@ window.AUDIO = {
 /*
   AUXÍLIO (Spotify)
   Durante a Ladainha, com as orações em latim, o botão "Auxílio" toca este trecho do episódio.
+  Os tempos aceitam frações de segundo: "19:28.5" = 19 minutos e 28 segundos e meio.
 */
 window.AUXILIO = {
   "episodio": "6evbEetOndo4JrdJABFVUg",
   "inicio": "16:38",
-  "fim": "19:29"
+  "fim": "19:28.5"
 };
 
 /*
