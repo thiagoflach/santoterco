@@ -753,6 +753,29 @@ main {
 }
 .seg button[aria-pressed="true"] { background: var(--btn); color: var(--on-btn); }
 
+/* Aviso curto (ex.: "Mensagem enviada. Obrigado!") */
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: calc(118px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 35;
+  max-width: calc(100% - 32px);
+  white-space: nowrap;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--btn);
+  color: var(--on-btn);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  animation: avisoEntra .3s ease;
+  transition: opacity .4s ease;
+  pointer-events: none;
+}
+.aviso.some { opacity: 0; }
+@keyframes avisoEntra { from { opacity: 0; transform: translate(-50%, 10px); } }
+
 /* Fim do terço: rosa dourada (fundo escuro nos dois temas) */
 .rosa-fim {
   position: fixed;
@@ -1052,6 +1075,8 @@ main {
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
   </button>
 </div>
+
+<div class="aviso" id="aviso" role="status" hidden></div>
 
 <!-- Fim do terço: a rosa dourada aparece, brilha alguns segundos e o terço recomeça -->
 <div class="rosa-fim" id="rosaFim" hidden>
@@ -2108,10 +2133,20 @@ main {
         })
       });
       if (!r.ok) throw new Error("http " + r.status);
+      // enviada: limpa o formulário (para não reenviar), agradece e fecha a tela
+      enviada = true;
       st.textContent = "Mensagem enviada. Obrigado!";
       st.className = "msg-status ok";
-      $("msgTexto").value = "";
+      limparMensagem();
+      btn.textContent = "Enviada ✓";
       vibrar(12);
+      setTimeout(() => {
+        enviada = false;
+        btn.disabled = false; btn.textContent = "Enviar";
+        st.textContent = ""; st.className = "msg-status";
+        if (!$("msgSheet").hidden) fecharFolhas();
+        aviso("Mensagem enviada. Obrigado!");
+      }, 1600);
     } catch (err) {
       // sem conexão com o serviço (ou dentro do link do Claude): oferece o app de e-mail
       const assunto = encodeURIComponent("Santo Terço · " + tipoMsg);
@@ -2123,9 +2158,24 @@ main {
       a.textContent = "Abrir no app de e-mail";
       st.append(a, " ou escreva para " + EMAIL_AUTOR + ".");
     } finally {
-      btn.disabled = false; btn.textContent = "Enviar";
+      if (!enviada) { btn.disabled = false; btn.textContent = "Enviar"; }
     }
   });
+  let enviada = false;
+  function limparMensagem() {
+    $("msgTexto").value = ""; $("msgNome").value = ""; $("msgEmail").value = "";
+    tipoMsg = "Sugestão";
+    document.querySelectorAll("[data-tipo]").forEach(x => x.setAttribute("aria-pressed", x.dataset.tipo === tipoMsg));
+  }
+  // aviso curto na tela principal
+  function aviso(texto) {
+    const t = $("aviso");
+    t.textContent = texto;
+    t.hidden = false;
+    t.classList.remove("some"); void t.offsetWidth;
+    clearTimeout(aviso.timer);
+    aviso.timer = setTimeout(() => { t.classList.add("some"); setTimeout(() => { t.hidden = true; }, 400); }, 2600);
+  }
   $("quick").addEventListener("click", e => e.stopPropagation()); // trocar tema/idioma não passa a conta
   document.querySelectorAll("[data-tema]").forEach(b => b.addEventListener("click", () => {
     ajustes.tema = b.dataset.tema;
