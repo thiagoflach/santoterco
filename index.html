@@ -1506,11 +1506,12 @@ main {
     reverb = conv;
     return reverb;
   }
-  function somDeSino() {
+  function somDeSino(base, atraso, volume) {
     if (!ajustes.som) return;
+    base = base || 1480;
     try {
-      const ac = ctxAudio(), t0 = ac.currentTime + .005, base = 1480;
-      const saida = ac.createGain(); saida.gain.value = 1;
+      const ac = ctxAudio(), t0 = ac.currentTime + .005 + (atraso || 0);
+      const saida = ac.createGain(); saida.gain.value = volume || 1;
       saida.connect(ac.destination);
       saida.connect(salaReverb(ac));
       // parciais de sino: a fundamental soa por mais tempo, as agudas somem antes;
@@ -1542,7 +1543,7 @@ main {
     const s = passos[state.idx];
     const fimDaDezena = !!(s && s.misterio && s.titulo === "Glória ao Pai");
     vibrar(s && (s.novo || fimDaDezena) ? [14, 60, 14] : 10);
-    if (fimDaDezena) somDeSino(); else somDePedra(!!(s && s.novo));
+    if (fimDaDezena) somDeSino(); else if (s) somDePedra(!!s.novo);
     balancar();
     if (state.idx >= passos.length) celebrarFim();
     hint.classList.add("gone");
@@ -1552,6 +1553,13 @@ main {
       if (state.idx >= passos.length) fecharFolhas(); else preencherOracao();
     }
   }
+  // Conclusão do terço: três sininhos subindo (Ré, Fá#, Lá), como um "amém" em notas
+  function somDeConclusao() {
+    somDeSino(1175, 0, .8);
+    somDeSino(1480, .16, .85);
+    somDeSino(1760, .32, 1);
+  }
+
   /* ---------- Fim do terço: rosa dourada e recomeço ---------- */
 
   let fimTimer = null;
@@ -1579,6 +1587,7 @@ main {
     el.classList.remove("saindo");
     el.hidden = false;
     vibrar([20, 80, 20, 80, 40]);
+    somDeConclusao();
     manterTelaAcesa();
     fimTimer = setTimeout(encerrarFim, leitura);
   }
