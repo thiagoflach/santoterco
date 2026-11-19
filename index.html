@@ -1720,13 +1720,16 @@ main {
       }
       const mestre = ac.createGain();
       mestre.gain.setValueAtTime(0, t);
-      mestre.gain.linearRampToValueAtTime(.016, t + 4);   // bem baixinho
+      // dura 3 segundos: entra em ~1 s, fica, e some suavemente até os 3 s (bem baixinho)
+      mestre.gain.linearRampToValueAtTime(.016, t + 1);
+      mestre.gain.setValueAtTime(.016, t + 1.6);
+      mestre.gain.linearRampToValueAtTime(0, t + 2.7); // com o eco da reverberação, termina aos 3 s
       const suave = ac.createBiquadFilter(); suave.type = "lowpass"; suave.frequency.value = 1100; suave.Q.value = .4; // corta o agudo estridente
       mestre.connect(suave); suave.connect(ac.destination); suave.connect(reverbLonga);
       // "respiração" do coro: o volume ondula bem devagar
       const resp = ac.createOscillator(), respG = ac.createGain();
       resp.frequency.value = .09; respG.gain.value = .004;
-      resp.connect(respG).connect(mestre.gain); resp.start(t);
+      resp.connect(respG).connect(mestre.gain); resp.start(t); resp.stop(t + 2.8);
       const fontes = [resp];
       [293.66, 369.99, 440, 587.33].forEach((f, i) => {
         const voz = ac.createGain(); voz.gain.value = i === 3 ? .5 : .8;
@@ -1742,7 +1745,7 @@ main {
           vib.frequency.value = 4.6 + Math.random() * .8; vibG.gain.value = 4;
           vib.connect(vibG).connect(o.detune);
           const og = ac.createGain(); og.gain.value = .33;
-          o.connect(og).connect(voz); o.start(t); vib.start(t);
+          o.connect(og).connect(voz); o.start(t); vib.start(t); o.stop(t + 2.8); vib.stop(t + 2.8);
           fontes.push(o, vib);
         });
       });
@@ -1750,8 +1753,9 @@ main {
         const t2 = ac.currentTime;
         mestre.gain.cancelScheduledValues(t2);
         mestre.gain.setValueAtTime(mestre.gain.value, t2);
-        mestre.gain.linearRampToValueAtTime(0, t2 + 1.6);
-        fontes.forEach(o => { try { o.stop(t2 + 1.7); } catch (e) {} });
+        if (t2 >= t + 2.7) return;               // já terminou sozinho
+        mestre.gain.linearRampToValueAtTime(0, t2 + .8);
+        fontes.forEach(o => { try { o.stop(t2 + .9); } catch (e) {} });
       };
     } catch (e) { return null; }
   }
