@@ -371,7 +371,7 @@ main {
 .col-esq { justify-self: start; }
 .col-meio { justify-self: center; }
 .col-dir { justify-self: end; }
-/* Meditação e Companhia nos cantos de baixo da área do terço */
+/* Meditação e Auxílio nos cantos de baixo da área do terço */
 .canto-esq, .canto-dir { position: absolute; bottom: 8px; z-index: 3; }
 .canto-esq { left: 0; }
 .canto-dir { right: 0; }
@@ -916,14 +916,14 @@ main {
       </div>
     </div>
   </div>
-  <!-- áudio nos cantos de baixo (o pingente e a cruz ficam no centro): Meditação à esquerda, Companhia à direita -->
+  <!-- áudio nos cantos de baixo (o pingente e a cruz ficam no centro): Meditação à esquerda, Auxílio à direita -->
   <button class="imgbtn audbtn canto-esq" id="vAudio" type="button" hidden aria-label="Ouvir a meditação do mistério">
   <svg id="vAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
   <span id="vAudioLbl">Meditação</span>
   </button>
-  <button class="imgbtn audbtn canto-dir" id="cAudio" type="button" hidden aria-label="Ouvir a Companhia">
+  <button class="imgbtn audbtn canto-dir" id="cAudio" type="button" hidden aria-label="Ouvir o Auxílio">
   <svg id="cAudioIco" viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>
-  <span>Companhia</span>
+  <span>Auxílio</span>
   </button>
   <div class="hint" id="hint">Toque em qualquer lugar para passar a conta</div>
 </main>
@@ -1865,12 +1865,12 @@ main {
   });
   viewer.addEventListener("click", () => { viewer.hidden = true; });
 
-  /* ---------- Áudio pelo player do Spotify: meditação dos mistérios e Companhia da Ladainha ---------- */
+  /* ---------- Áudio pelo player do Spotify: meditação dos mistérios e Auxílio da Ladainha ---------- */
 
   const PLAY = '<path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/>';
   const PAUSE = '<rect x="5" y="4" width="3.6" height="12" rx="1"/><rect x="11.4" y="4" width="3.6" height="12" rx="1"/>';
   const emSegundos = t => { const p = t.split(":").map(Number); return p[0] * 60 + p[1]; };
-  const COMPANHIA = window.COMPANHIA || null;
+  const COMPANHIA = window.AUXILIO || null;
 
   // trecho do episódio que pertence ao mistério atual: do seu início até o início do próximo capítulo
   function capituloAtual() {
@@ -1885,7 +1885,7 @@ main {
     return { uri: "spotify:episode:" + AUDIO.episodio, ini: ini, fim: fim, link: c.link, chave: state.set + "-" + s.misterio };
   }
 
-  // Companhia: só durante a Ladainha, com as orações em latim
+  // Auxílio: só durante a Ladainha, com as orações em latim
   function companhiaAtual() {
     const s = passos[state.idx];
     if (!COMPANHIA || !s || s.oracao !== "ladainha" || ajustes.lingua !== "la") return null;
@@ -1922,7 +1922,7 @@ main {
 
   const BOTOES = [
     { el: "vAudio", ico: "vAudioIco", trecho: capituloAtual, nome: "a meditação" },
-    { el: "cAudio", ico: "cAudioIco", trecho: companhiaAtual, nome: "a Companhia" }
+    { el: "cAudio", ico: "cAudioIco", trecho: companhiaAtual, nome: "o Auxílio" }
   ];
   function atualizarBotaoAudio() {
     BOTOES.forEach(bt => {

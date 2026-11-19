@@ -730,13 +730,13 @@ window.AUDIO = {
 };
 
 /*
-  COMPANHIA (Spotify)
-  Durante a Ladainha, com as orações em latim, o botão "Companhia" toca este trecho do episódio.
+  AUXÍLIO (Spotify)
+  Durante a Ladainha, com as orações em latim, o botão "Auxílio" toca este trecho do episódio.
 */
-window.COMPANHIA = {
+window.AUXILIO = {
   "episodio": "6evbEetOndo4JrdJABFVUg",
-  "inicio": "15:57",
-  "fim": "19:26"
+  "inicio": "16:38",
+  "fim": "19:27"
 };
 
 /*
