@@ -736,7 +736,7 @@ window.AUDIO = {
 window.AUXILIO = {
   "episodio": "6evbEetOndo4JrdJABFVUg",
   "inicio": "16:38",
-  "fim": "19:27"
+  "fim": "19:28"
 };
 
 /*
