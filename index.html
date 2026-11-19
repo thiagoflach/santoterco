@@ -1715,29 +1715,29 @@ main {
         const dur = 3.2, n = Math.floor(ac.sampleRate * dur), ir = ac.createBuffer(2, n, ac.sampleRate);
         for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.4); }
         reverbLonga = ac.createConvolver(); reverbLonga.buffer = ir;
-        const ret = ac.createGain(); ret.gain.value = .55;
+        const ret = ac.createGain(); ret.gain.value = .4;
         reverbLonga.connect(ret).connect(ac.destination);
       }
       const mestre = ac.createGain();
       mestre.gain.setValueAtTime(0, t);
-      mestre.gain.linearRampToValueAtTime(.045, t + 3);
-      const suave = ac.createBiquadFilter(); suave.type = "lowpass"; suave.frequency.value = 2200;
+      mestre.gain.linearRampToValueAtTime(.016, t + 4);   // bem baixinho
+      const suave = ac.createBiquadFilter(); suave.type = "lowpass"; suave.frequency.value = 1100; suave.Q.value = .4; // corta o agudo estridente
       mestre.connect(suave); suave.connect(ac.destination); suave.connect(reverbLonga);
       // "respiração" do coro: o volume ondula bem devagar
       const resp = ac.createOscillator(), respG = ac.createGain();
-      resp.frequency.value = .09; respG.gain.value = .012;
+      resp.frequency.value = .09; respG.gain.value = .004;
       resp.connect(respG).connect(mestre.gain); resp.start(t);
       const fontes = [resp];
       [293.66, 369.99, 440, 587.33].forEach((f, i) => {
         const voz = ac.createGain(); voz.gain.value = i === 3 ? .5 : .8;
         // formantes da vogal "a", que dão o timbre de voz
-        [[730, 6, 1], [1090, 8, .5], [2440, 10, .22]].forEach(([fq, q, g]) => {
+        [[730, 5, 1], [1090, 6, .35]].forEach(([fq, q, g]) => {
           const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = fq; bp.Q.value = q;
           const bg = ac.createGain(); bg.gain.value = g;
           voz.connect(bp).connect(bg).connect(mestre);
         });
         [-7, 0, 6].forEach(cents => {
-          const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = cents;
+          const o = ac.createOscillator(); o.type = "triangle"; o.frequency.value = f; o.detune.value = cents; // onda mais macia
           const vib = ac.createOscillator(), vibG = ac.createGain();   // vibrato leve
           vib.frequency.value = 4.6 + Math.random() * .8; vibG.gain.value = 4;
           vib.connect(vibG).connect(o.detune);
