@@ -782,6 +782,99 @@ main {
 .aviso.some { opacity: 0; }
 @keyframes avisoEntra { from { opacity: 0; transform: translate(-50%, 10px); } }
 
+/* Comunhão Espiritual (fundo escuro nos dois temas) */
+.comunhao {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 24px calc(20px + env(safe-area-inset-bottom, 0px));
+  background: radial-gradient(ellipse 80% 55% at 50% -8%, rgba(255, 236, 186, .38), rgba(7, 11, 9, 0) 70%), #070b09;
+  animation: fade 1.2s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+.comunhao.saindo { opacity: 0; transition: opacity .9s ease; }
+/* raios largos vindos do alto, balançando bem devagar */
+.raios {
+  position: absolute;
+  left: 50%;
+  top: -12%;
+  width: 180vmax;
+  height: 130vh;
+  transform: translateX(-50%);
+  transform-origin: 50% 0;
+  background: repeating-conic-gradient(from 160deg at 50% 0%, rgba(255, 232, 170, .13) 0deg 2.5deg, rgba(255, 232, 170, 0) 2.5deg 8deg);
+  -webkit-mask-image: radial-gradient(ellipse 45% 75% at 50% 0%, #000 10%, transparent 80%);
+  mask-image: radial-gradient(ellipse 45% 75% at 50% 0%, #000 10%, transparent 80%);
+  animation: raiosOnda 9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes raiosOnda { from { transform: translateX(-50%) rotate(-3deg); opacity: .75; } to { transform: translateX(-50%) rotate(3deg); opacity: 1; } }
+/* feixe de luz que desce sobre o ostensório */
+.feixe {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: min(90vw, 460px);
+  height: 62vh;
+  transform: translateX(-50%);
+  background: linear-gradient(to bottom, rgba(255, 244, 210, .5), rgba(255, 226, 150, .12) 70%, rgba(255, 226, 150, 0));
+  clip-path: polygon(42% 0, 58% 0, 88% 100%, 12% 100%);
+  filter: blur(6px);
+  animation: feixePulsa 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes feixePulsa { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.luzes { position: absolute; inset: 0; pointer-events: none; }
+.luz-cai {
+  position: absolute;
+  top: -4%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff8e0 0 25%, rgba(255, 220, 140, .8) 40%, rgba(255, 220, 140, 0) 70%);
+  animation: luzCai linear infinite;
+}
+@keyframes luzCai {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 1; }
+  80% { opacity: .9; }
+  100% { transform: translateY(70vh); opacity: 0; }
+}
+.ost-img {
+  position: relative;
+  width: min(42vw, 200px);
+  max-height: 42vh;
+  object-fit: contain;
+  animation: ostEntra 2s cubic-bezier(.2, .8, .3, 1) both, ostBrilho 3.2s ease-in-out 1.6s infinite;
+}
+@keyframes ostEntra {
+  from { opacity: 0; transform: translateY(-30px) scale(.85); filter: drop-shadow(0 0 0 rgba(255, 220, 140, 0)); }
+  to { opacity: 1; transform: none; filter: drop-shadow(0 0 16px rgba(255, 215, 120, .55)); }
+}
+@keyframes ostBrilho {
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(255, 215, 120, .5)) brightness(1); }
+  50% { filter: drop-shadow(0 0 40px rgba(255, 230, 160, .95)) brightness(1.12); }
+}
+.com-txt { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; animation: fade 1.4s ease 1s both; }
+.com-txt span {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #f3dc9a;
+  text-shadow: 0 0 14px rgba(255, 210, 110, .55);
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(243, 220, 154, .35);
+}
+.com-txt p { margin: 0; max-width: 32ch; font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.45; color: #f6e7b8; text-shadow: 0 0 14px rgba(255, 210, 110, .3); text-wrap: pretty; }
+.com-dica { position: relative; margin: 0; font-size: 12px; letter-spacing: .08em; color: rgba(232, 215, 164, .6); animation: fade 1s ease 4s both; }
+
 /* Fim do terço: rosa dourada (fundo escuro nos dois temas) */
 .rosa-fim {
   position: fixed;
@@ -854,6 +947,7 @@ main {
 
 @media (prefers-reduced-motion: reduce) {
   .rosa-fim, .rosa-luz, .rosa-img, .rosa-txt, .brilho { animation: none; }
+  .comunhao, .raios, .feixe, .luz-cai, .ost-img, .com-txt, .com-dica { animation: none; }
   .halo-c, .center.swap, .ripple, .sheet, .backdrop, #terco.sway, #terco.sway #pend { animation: none; }
   .b, #halo, .progress span { transition-duration: .01s; }
 }
@@ -1087,6 +1181,19 @@ main {
 </div>
 
 <div class="aviso" id="aviso" role="status" hidden></div>
+
+<!-- Comunhão Espiritual: o ostensório em destaque, com luz vindo do céu, e o texto da oração -->
+<div class="comunhao" id="comunhao" hidden role="dialog" aria-modal="true" aria-labelledby="comTitulo">
+  <div class="raios"></div>
+  <div class="feixe"></div>
+  <div class="luzes" id="comLuzes"></div>
+  <img class="ost-img" src="imagens/ostensorio.webp" alt="Ostensório com o Santíssimo Sacramento">
+  <div class="com-txt">
+    <span id="comTitulo">Comunhão Espiritual</span>
+    <p id="comTexto"></p>
+  </div>
+  <p class="com-dica">Toque para continuar</p>
+</div>
 
 <!-- Fim do terço: a rosa dourada aparece, brilha alguns segundos e o terço recomeça -->
 <div class="rosa-fim" id="rosaFim" hidden>
@@ -1581,6 +1688,7 @@ main {
     if (fimDaDezena) somDeSino(); else if (s) somDePedra(!!s.novo);
     balancar();
     if (state.idx >= passos.length) celebrarFim();
+    else if (s && s.oracao === "comunhaoEspiritual") mostrarComunhao();
     hint.classList.add("gone");
     manterTelaAcesa();
     render();
@@ -1594,6 +1702,93 @@ main {
     somDeSino(1480, .16, .85);
     somDeSino(1760, .32, 1);
   }
+
+  /* ---------- Comunhão Espiritual: ostensório, luz do céu e coro suave ---------- */
+
+  // Coro de anjos: vozes "aah" sintetizadas (acorde de Ré maior), bem baixo, entrando e saindo devagar
+  let reverbLonga = null;
+  function coroDeAnjos() {
+    if (!ajustes.som) return null;
+    try {
+      const ac = ctxAudio(), t = ac.currentTime;
+      if (!reverbLonga) {
+        const dur = 3.2, n = Math.floor(ac.sampleRate * dur), ir = ac.createBuffer(2, n, ac.sampleRate);
+        for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2.4); }
+        reverbLonga = ac.createConvolver(); reverbLonga.buffer = ir;
+        const ret = ac.createGain(); ret.gain.value = .55;
+        reverbLonga.connect(ret).connect(ac.destination);
+      }
+      const mestre = ac.createGain();
+      mestre.gain.setValueAtTime(0, t);
+      mestre.gain.linearRampToValueAtTime(.045, t + 3);
+      const suave = ac.createBiquadFilter(); suave.type = "lowpass"; suave.frequency.value = 2200;
+      mestre.connect(suave); suave.connect(ac.destination); suave.connect(reverbLonga);
+      // "respiração" do coro: o volume ondula bem devagar
+      const resp = ac.createOscillator(), respG = ac.createGain();
+      resp.frequency.value = .09; respG.gain.value = .012;
+      resp.connect(respG).connect(mestre.gain); resp.start(t);
+      const fontes = [resp];
+      [293.66, 369.99, 440, 587.33].forEach((f, i) => {
+        const voz = ac.createGain(); voz.gain.value = i === 3 ? .5 : .8;
+        // formantes da vogal "a", que dão o timbre de voz
+        [[730, 6, 1], [1090, 8, .5], [2440, 10, .22]].forEach(([fq, q, g]) => {
+          const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = fq; bp.Q.value = q;
+          const bg = ac.createGain(); bg.gain.value = g;
+          voz.connect(bp).connect(bg).connect(mestre);
+        });
+        [-7, 0, 6].forEach(cents => {
+          const o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = cents;
+          const vib = ac.createOscillator(), vibG = ac.createGain();   // vibrato leve
+          vib.frequency.value = 4.6 + Math.random() * .8; vibG.gain.value = 4;
+          vib.connect(vibG).connect(o.detune);
+          const og = ac.createGain(); og.gain.value = .33;
+          o.connect(og).connect(voz); o.start(t); vib.start(t);
+          fontes.push(o, vib);
+        });
+      });
+      return () => {   // para o coro com um esmaecimento suave
+        const t2 = ac.currentTime;
+        mestre.gain.cancelScheduledValues(t2);
+        mestre.gain.setValueAtTime(mestre.gain.value, t2);
+        mestre.gain.linearRampToValueAtTime(0, t2 + 1.6);
+        fontes.forEach(o => { try { o.stop(t2 + 1.7); } catch (e) {} });
+      };
+    } catch (e) { return null; }
+  }
+
+  let pararCoro = null;
+  function mostrarComunhao() {
+    const el = $("comunhao");
+    if (!el.hidden) return;
+    const o = ORACOES[ajustes.lingua].comunhaoEspiritual;
+    $("comTitulo").textContent = o.titulo;
+    $("comTexto").textContent = o.texto.filter(Boolean).join(" ");
+    const cx = $("comLuzes");
+    cx.textContent = "";
+    for (let i = 0; i < 18; i++) {       // pequenas luzes descendo do céu
+      const l = document.createElement("span");
+      l.className = "luz-cai";
+      l.style.left = (12 + Math.random() * 76) + "%";
+      l.style.animationDuration = (5 + Math.random() * 5) + "s";
+      l.style.animationDelay = (Math.random() * 6) + "s";
+      l.style.transform = "scale(" + (.5 + Math.random()) + ")";
+      cx.appendChild(l);
+    }
+    el.classList.remove("saindo");
+    el.hidden = false;
+    pararAudio();
+    if (pararCoro) pararCoro();
+    pararCoro = coroDeAnjos();
+    manterTelaAcesa();
+  }
+  function fecharComunhao() {
+    const el = $("comunhao");
+    if (el.hidden || el.classList.contains("saindo")) return;
+    if (pararCoro) { pararCoro(); pararCoro = null; }
+    el.classList.add("saindo");
+    setTimeout(() => { el.hidden = true; el.classList.remove("saindo"); }, 900);
+  }
+  $("comunhao").addEventListener("click", fecharComunhao); // um toque fecha e volta ao terço (sem passar a conta)
 
   /* ---------- Fim do terço: rosa dourada e recomeço ---------- */
 
@@ -1661,9 +1856,9 @@ main {
     avancar();
   });
 
-  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim"].some(id => !$(id).hidden);
+  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim", "comunhao"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") { fecharFolhas(); return; }
+    if (e.key === "Escape") { fecharComunhao(); fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
     if (algumaFolhaAberta()) return;
     if (e.target.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) return;
