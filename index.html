@@ -151,7 +151,17 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
   gap: 6px;
 }
 .setname svg { width: 14px; height: 14px; opacity: .7; flex: none; }
-.top-right { display: flex; align-items: center; gap: 10px; padding-bottom: 2px; }
+.top-right { display: flex; align-items: center; gap: 8px; padding-bottom: 2px; }
+.ajudabtn { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--accent); line-height: 1; }
+/* celulares estreitos: cabeçalho mais compacto, para o nome dos mistérios caber numa linha */
+@media (max-width: 400px) {
+  .top { gap: 8px; }
+  .top-right { gap: 6px; }
+  .setname { font-size: 1.32rem; }
+  .step { padding: 0 11px; }
+  .step svg { display: none; }
+  .top-right .iconbtn { width: 38px; height: 38px; }
+}
 .step {
   height: 40px;
   padding: 0 14px 0 12px;
@@ -875,6 +885,54 @@ main {
 .com-txt p { margin: 0; max-width: 32ch; font-family: var(--display); font-style: italic; font-size: 1.3rem; line-height: 1.45; color: #f6e7b8; text-shadow: 0 0 14px rgba(255, 210, 110, .3); text-wrap: pretty; }
 .com-dica { position: relative; margin: 0; font-size: 12px; letter-spacing: .08em; color: rgba(232, 215, 164, .6); animation: fade 1s ease 4s both; }
 
+/* Tutorial "Como usar" em tela cheia: letras grandes, frases curtas */
+.ajuda {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+  animation: fade .3s ease;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.ajuda-topo { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); flex: none; }
+.ajuda-topo h2 { margin: 0; font-family: var(--display); font-size: 1.75rem; font-weight: 700; line-height: 1.1; color: var(--accent); }
+.ajuda-corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 2px 18px; }
+.ajuda section { padding-block: 16px; border-bottom: 1px solid var(--line); }
+.ajuda section:last-child { border-bottom: 0; }
+.ajuda h3 { margin: 0 0 8px; font-family: var(--display); font-size: 1.45rem; font-weight: 700; }
+.ajuda p, .ajuda li { margin: 0 0 10px; font-size: 18px; line-height: 1.5; max-width: 36em; }
+.ajuda b { color: var(--accent); font-weight: 700; }
+.ajuda .lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.ajuda .lista li { margin: 0; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 11px;
+  margin-right: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.chip svg { width: 15px; height: 15px; flex: none; }
+.chip.cheio { background: var(--btn); border-color: var(--btn); color: var(--on-btn); }
+.chip.ajuda-q { font-family: var(--display); font-size: 18px; font-weight: 700; }
+.ajuda-rodape { flex: none; padding-top: 10px; border-top: 1px solid var(--line); }
+
 /* Fim do terço: rosa dourada (fundo escuro nos dois temas) */
 .rosa-fim {
   position: fixed;
@@ -970,6 +1028,7 @@ main {
     <button id="optBtn" class="iconbtn" type="button" aria-haspopup="dialog" aria-label="Ajustes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
     </button>
+    <button id="ajudaBtn" class="iconbtn ajudabtn" type="button" aria-haspopup="dialog" aria-label="Como usar o terço">?</button>
   </div>
 </header>
 
@@ -1193,6 +1252,85 @@ main {
     <p id="comTexto"></p>
   </div>
   <p class="com-dica">Toque para continuar</p>
+</div>
+
+<!-- Como usar: tutorial simples, em tela cheia -->
+<div class="ajuda" id="ajuda" hidden role="dialog" aria-modal="true" aria-labelledby="ajudaTitulo">
+  <div class="ajuda-topo">
+    <h2 id="ajudaTitulo">Como usar o Santo Terço</h2>
+    <button class="iconbtn" type="button" id="ajudaFechar" aria-label="Fechar o tutorial">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+    </button>
+  </div>
+  <div class="ajuda-corpo">
+
+    <section>
+      <h3>1. Rezar e contar</h3>
+      <p><b>Toque em qualquer lugar do terço</b> para passar para a próxima conta.</p>
+      <p>A <b>conta dourada que brilha</b> mostra onde você está. No meio do terço aparecem o nome da oração e a contagem, por exemplo <b>“3 de 10”</b>.</p>
+      <p>Errou o toque? Use <span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>Voltar</span>.</p>
+    </section>
+
+    <section>
+      <h3>2. Ler a oração</h3>
+      <p>Não sabe a oração de cor? Toque em <span class="chip cheio"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5.5C8.5 4 6 3.5 3 4v11.5c3-.5 5.5 0 7 1.5 1.5-1.5 4-2 7-1.5V4c-3-.5-5.5 0-7 1.5zM10 5.5V17"/></svg>Ver oração</span> e o texto aparece.</p>
+      <p>Lá dentro, <b>“Próxima conta”</b> passa para a seguinte sem fechar o texto.</p>
+      <p>Nos textos longos aparece, ao lado, um botão <span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg></span> que <b>rola o texto sozinho</b>. O botão <span class="chip">1×</span> muda a velocidade.</p>
+    </section>
+
+    <section>
+      <h3>3. Os mistérios do dia</h3>
+      <p>O terço já abre com os <b>mistérios do dia da semana</b>. O nome aparece no alto, à esquerda.</p>
+      <p>Quer rezar outros mistérios? <b>Toque no nome</b> e escolha.</p>
+    </section>
+
+    <section>
+      <h3>4. Botões do alto</h3>
+      <ul class="lista">
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r=".9" fill="currentColor"/><circle cx="3.5" cy="10" r=".9" fill="currentColor"/><circle cx="3.5" cy="15" r=".9" fill="currentColor"/></svg>1 / 78</span> Mostra em que parte você está. Toque para <b>ir direto</b> a qualquer parte do terço.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span> <b>Ajustes:</b> ligar ou desligar o som e a vibração, e <b>recomeçar o terço</b> do início.</li>
+        <li><span class="chip">LA / PT</span> Orações em <b>latim</b> ou em <b>português</b>.</li>
+        <li><span class="chip">☀ / ☾</span> Tela <b>clara</b> ou <b>escura</b>.</li>
+        <li><span class="chip ajuda-q">?</span> Abre este tutorial.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>5. Durante cada mistério</h3>
+      <ul class="lista">
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="2"/><circle cx="7.5" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></svg>Imagem</span> Mostra uma <b>pintura do mistério</b>, para ajudar a contemplar. Toque nela para fechar.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Meditação</span> Toca a <b>meditação do mistério</b> (áudio). Toque de novo para pausar.</li>
+        <li><span class="chip"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M6 4.2v11.6a.7.7 0 0 0 1.1.6l9-5.8a.7.7 0 0 0 0-1.2l-9-5.8A.7.7 0 0 0 6 4.2z"/></svg>Auxílio</span> Aparece na <b>Ladainha em latim</b> e toca o áudio para acompanhar.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>6. Os sons</h3>
+      <p>Cada toque faz o som de uma <b>pedrinha</b>. No fim de cada dezena toca um <b>sininho</b>. No fim do terço, <b>três sininhos</b>.</p>
+      <p>Para rezar em silêncio, desligue o som nos <b>Ajustes</b>.</p>
+    </section>
+
+    <section>
+      <h3>7. Momentos especiais</h3>
+      <p>Na <b>Comunhão Espiritual</b> aparece o ostensório, com a oração. Toque para continuar.</p>
+      <p>No <b>fim do terço</b> aparece uma rosa dourada com uma frase de São Josemaria. Depois o terço recomeça.</p>
+    </section>
+
+    <section>
+      <h3>8. Pode fechar e voltar</h3>
+      <p>O app <b>guarda onde você parou</b>. Se fechar ou recarregar, ele volta para a mesma conta.</p>
+      <p><b>Dica:</b> para abrir como um aplicativo, adicione à tela de início do celular. No iPhone: botão <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.</p>
+    </section>
+
+    <section>
+      <h3>9. Fale com o autor</h3>
+      <p>Embaixo da tela, em <b>“Enviar uma mensagem”</b>, você manda sugestões, críticas ou elogios.</p>
+    </section>
+
+  </div>
+  <div class="ajuda-rodape">
+    <button class="btn primary wide" type="button" id="ajudaOk">Entendi</button>
+  </div>
 </div>
 
 <!-- Fim do terço: a rosa dourada aparece, brilha alguns segundos e o terço recomeça -->
@@ -1520,9 +1658,20 @@ main {
     $("vibOff").setAttribute("aria-pressed", !ajustes.vib);
   }
 
+  // o nome dos mistérios diminui só o necessário para caber numa linha (cada tela e cada nome é diferente)
+  function ajustarNome() {
+    const el = document.querySelector(".setname");
+    el.style.fontSize = "";
+    let fs = parseFloat(getComputedStyle(el).fontSize);
+    while (el.getBoundingClientRect().height > fs * 1.6 && fs > 15) { fs -= 1; el.style.fontSize = fs + "px"; }
+  }
+  window.addEventListener("resize", () => ajustarNome());
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ajustarNome()); // depois que a fonte do título carrega
+
   function renderCabecalho() {
     $("dayLbl").textContent = DIAS[hoje.getDay()] + (state.set === conjuntoHoje ? "" : " · escolhido manualmente");
     $("setLbl").textContent = conjunto().nome;
+    ajustarNome();
   }
 
   function render() {
@@ -1860,7 +2009,7 @@ main {
     avancar();
   });
 
-  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim", "comunhao"].some(id => !$(id).hidden);
+  const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim", "comunhao", "ajuda"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") { fecharComunhao(); fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
@@ -1998,7 +2147,7 @@ main {
   }
   function fecharFolhas() {
     if (typeof pararRolagem === "function") pararRolagem();
-    ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet"].forEach(id => { $(id).hidden = true; });
+    ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "ajuda"].forEach(id => { $(id).hidden = true; });
   }
   document.querySelectorAll("[data-close]").forEach(n => n.addEventListener("click", fecharFolhas));
 
@@ -2308,6 +2457,17 @@ main {
   /* ---------- Ajustes ---------- */
 
   $("optBtn").addEventListener("click", () => abrirFolha("optSheet"));
+
+  /* ---------- Tutorial "Como usar" ---------- */
+  $("ajudaBtn").addEventListener("click", () => {
+    fecharFolhas();
+    $("ajuda").hidden = false;
+    document.querySelector(".ajuda-corpo").scrollTop = 0;
+    $("ajudaFechar").focus({ preventScroll: true });
+  });
+  const fecharAjuda = () => { $("ajuda").hidden = true; };
+  $("ajudaFechar").addEventListener("click", fecharAjuda);
+  $("ajudaOk").addEventListener("click", fecharAjuda);
 
   /* ---------- Mensagem para o autor (enviada pelo FormSubmit direto para o e-mail) ---------- */
 
