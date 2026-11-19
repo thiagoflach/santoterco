@@ -609,6 +609,28 @@ main {
   animation: up .32s cubic-bezier(.2, .9, .3, 1);
 }
 @keyframes up { from { transform: translateY(100%); } }
+/* painel puxado para cima: ocupa a tela toda */
+.sheet.cheia {
+  max-height: 100%;
+  height: 100%;
+  border-radius: 0;
+  border-top: 0;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+}
+.sheet { transition: max-height .3s ease, border-radius .3s ease; }
+/* alças para arrastar o painel (puxar para cima = tela cheia, empurrar para baixo = fechar) */
+.grab, .sheet-head { touch-action: none; cursor: grab; }
+.sheet .grab { box-sizing: content-box; padding: 10px 60px; margin: -8px auto -6px; background-clip: content-box; }
+
+/* Barra de rolagem sempre visível (desenhada pelo app; o iPhone esconde a nativa) */
+.sheet-body, .jump, .sets, .msg-form, .ajuda-corpo { scrollbar-width: none; }
+.sheet-body::-webkit-scrollbar, .jump::-webkit-scrollbar, .sets::-webkit-scrollbar,
+.msg-form::-webkit-scrollbar, .ajuda-corpo::-webkit-scrollbar { display: none; }
+.com-barra { padding-right: 16px !important; }
+.barra { position: absolute; width: 22px; z-index: 2; pointer-events: none; }
+.barra::before { content: ""; position: absolute; right: 2px; top: 0; bottom: 0; width: 4px; border-radius: 4px; background: rgba(214, 201, 154, .18); }
+.barra-polegar { position: absolute; right: 0; width: 22px; pointer-events: auto; touch-action: none; cursor: grab; }
+.barra-polegar::after { content: ""; position: absolute; right: 1px; top: 0; bottom: 0; width: 6px; border-radius: 6px; background: #d6c99a; box-shadow: 0 0 0 1px rgba(23, 37, 31, .15); }
 .grab { width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto; flex: none; }
 .sheet-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex: none; }
 .sheet-head h2 {
@@ -626,11 +648,11 @@ main {
 }
 .sheet-sub:empty { display: none; }
 .body-wrap { position: relative; display: flex; flex-direction: column; min-height: 0; flex: 0 1 auto; }
-.body-wrap.rolavel .sheet-body { padding-right: 52px; }
+.body-wrap.rolavel .sheet-body { padding-right: 62px !important; }
 .autoscroll {
   position: absolute;
   top: 4px;
-  right: 0;
+  right: 18px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2146,6 +2168,7 @@ main {
     if (x) x.focus({ preventScroll: true });
   }
   function fecharFolhas() {
+    document.querySelectorAll(".sheet.cheia").forEach(x => x.classList.remove("cheia"));
     if (typeof pararRolagem === "function") pararRolagem();
     ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "ajuda"].forEach(id => { $(id).hidden = true; });
   }
@@ -2457,6 +2480,95 @@ main {
   /* ---------- Ajustes ---------- */
 
   $("optBtn").addEventListener("click", () => abrirFolha("optSheet"));
+
+  /* ---------- Barra de rolagem visível (cor #d6c99a) ---------- */
+  function barraDeRolagem(el) {
+    const pai = el.parentElement;
+    if (getComputedStyle(pai).position === "static") pai.style.position = "relative";
+    el.classList.add("com-barra");
+    const trilho = document.createElement("div"); trilho.className = "barra"; trilho.hidden = true;
+    const pol = document.createElement("div"); pol.className = "barra-polegar";
+    trilho.appendChild(pol); pai.appendChild(trilho);
+    let pedido = false;
+    const atualizar = () => {
+      pedido = false;
+      const ch = el.clientHeight, sh = el.scrollHeight;
+      if (!ch || sh <= ch + 2) { trilho.hidden = true; return; }
+      trilho.hidden = false;
+      trilho.style.top = (el.offsetTop + 4) + "px";
+      trilho.style.height = (ch - 8) + "px";
+      trilho.style.left = (el.offsetLeft + el.offsetWidth - 22) + "px";
+      const t = ch - 8, h = Math.max(40, t * ch / sh);
+      pol.style.height = h + "px";
+      pol.style.top = ((el.scrollTop / (sh - ch)) * (t - h)) + "px";
+    };
+    const agendar = () => { if (!pedido) { pedido = true; requestAnimationFrame(atualizar); } };
+    el.addEventListener("scroll", agendar, { passive: true });
+    window.addEventListener("resize", agendar);
+    if (window.ResizeObserver) new ResizeObserver(agendar).observe(el);
+    new MutationObserver(agendar).observe(el, { childList: true, subtree: true, characterData: true });
+    // a barra também pode ser arrastada com o dedo
+    let y0 = 0, st0 = 0;
+    pol.addEventListener("pointerdown", e => {
+      e.preventDefault(); e.stopPropagation();
+      y0 = e.clientY; st0 = el.scrollTop; pol.setPointerCapture(e.pointerId);
+    });
+    pol.addEventListener("pointermove", e => {
+      if (!pol.hasPointerCapture(e.pointerId)) return;
+      const ch = el.clientHeight, sh = el.scrollHeight, t = ch - 8, h = pol.offsetHeight;
+      el.scrollTop = st0 + (e.clientY - y0) * (sh - ch) / Math.max(1, t - h);
+    });
+    pol.addEventListener("click", e => e.stopPropagation());
+    agendar();
+    return agendar;
+  }
+  ["sheetBody", "jumpList", "setList", "msgForm"].forEach(id => barraDeRolagem($(id)));
+  barraDeRolagem(document.querySelector(".ajuda-corpo"));
+
+  /* ---------- Painéis: puxar para cima = tela cheia; empurrar para baixo = fechar ---------- */
+  document.querySelectorAll(".sheet").forEach(sheet => {
+    let y0 = null, dy = 0, moveu = false, h0 = 0;
+    const inicio = e => {
+      if (e.button > 0) return;
+      y0 = e.clientY; dy = 0; moveu = false; h0 = sheet.getBoundingClientRect().height;
+      // acompanha o dedo pela tela inteira enquanto arrasta (ele sai de cima da alça)
+      window.addEventListener("pointermove", mover);
+      window.addEventListener("pointerup", fim);
+      window.addEventListener("pointercancel", fim);
+    };
+    const mover = e => {
+      if (y0 === null) return;
+      dy = e.clientY - y0;
+      if (!moveu && Math.abs(dy) < 8) return;
+      moveu = true;
+      sheet.style.transition = "none";
+      if (dy > 0) { sheet.style.transform = "translateY(" + dy + "px)"; sheet.style.maxHeight = ""; sheet.style.height = ""; }
+      else if (!sheet.classList.contains("cheia")) {
+        const alvo = Math.min(window.innerHeight, h0 - dy);
+        sheet.style.transform = ""; sheet.style.maxHeight = alvo + "px"; sheet.style.height = alvo + "px";
+      }
+    };
+    const fim = () => {
+      window.removeEventListener("pointermove", mover);
+      window.removeEventListener("pointerup", fim);
+      window.removeEventListener("pointercancel", fim);
+      if (y0 === null) return;
+      y0 = null;
+      sheet.style.transition = ""; sheet.style.transform = ""; sheet.style.maxHeight = ""; sheet.style.height = "";
+      if (!moveu) return;
+      if (dy > 90) {
+        if (sheet.classList.contains("cheia") && dy < 220) sheet.classList.remove("cheia"); // da tela cheia volta ao tamanho normal
+        else fecharFolhas();
+      } else if (dy < -50) sheet.classList.add("cheia");
+      // o toque que arrastou não deve "clicar" no botão de fechar
+      const bloq = ev => { ev.stopPropagation(); ev.preventDefault(); };
+      sheet.addEventListener("click", bloq, { capture: true, once: true });
+      setTimeout(() => { sheet.removeEventListener("click", bloq, { capture: true }); moveu = false; }, 350);
+    };
+    sheet.querySelectorAll(".grab, .sheet-head").forEach(al => {
+      al.addEventListener("pointerdown", inicio);
+    });
+  });
 
   /* ---------- Tutorial "Como usar" ---------- */
   $("ajudaBtn").addEventListener("click", () => {
