@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Santo Terço — o terço da Obra no seu celular</title>
+<meta name="description" content="Aplicativo gratuito para rezar o terço da Obra, em português e em latim. Simples, bonito e feito para não perder a conta.">
+<meta name="theme-color" content="#faf9f4">
+<meta property="og:title" content="Santo Terço — o terço da Obra no seu celular">
+<meta property="og:description" content="Aplicativo gratuito para rezar o terço da Obra, em português e em latim.">
+<meta property="og:image" content="https://thiagoflach.github.io/santoterco/imagens/icone-512.png">
+<meta property="og:type" content="website">
+<link rel="icon" href="../imagens/icone-192.png">
+<link rel="apple-touch-icon" href="../imagens/icone-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Página de divulgação do Santo Terço.
+   Mesma paleta do tema claro do app: marfim e bege, verde-floresta nos botões, areia dourada nos detalhes.
+   Topo com o vídeo; seções de funções alternando texto e tela do app; botão para o app sempre visível. */
+:root {
+  --verde: #17251f;
+  --verde2: #1e2f27;
+  --linha-escura: #344b3a;
+  --areia: #d6c99a;
+  --ouro: #e2b456;
+  --marfim: #faf9f4;
+  --marfim2: #f1ebdd;
+  --texto: #1b2a22;
+  --texto2: #555d56;
+  --floresta: #0f5132;
+  --display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+  --ui: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--marfim);
+  color: var(--texto);
+  font-family: var(--ui);
+  font-size: 18px;
+  line-height: 1.6;
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)); /* espaço para o botão fixo */
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; }
+.miolo { max-width: 1080px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+
+/* Cabeçalho */
+.cabeca { position: sticky; top: 0; z-index: 20; background: rgba(250, 249, 244, .94); border-bottom: 1px solid #e3dfd2; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding-top: env(safe-area-inset-top, 0px); }
+.cabeca .miolo { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; }
+.marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--marfim2); }
+.marca img { width: auto; height: 38px; filter: drop-shadow(0 0 6px rgba(226, 180, 86, .45)); }
+.marca span { font-family: var(--display); font-size: 1.55rem; font-weight: 700; color: var(--floresta); }
+.btn-topo { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 999px; background: var(--floresta); color: var(--marfim); font-weight: 700; font-size: 15px; text-decoration: none; white-space: nowrap; }
+
+/* Topo com o vídeo */
+.hero { background: radial-gradient(ellipse 90% 70% at 50% 0%, rgba(214, 201, 154, .45), rgba(241, 235, 221, 0) 70%), var(--marfim2); color: var(--texto); padding-block: 40px 56px; }
+.hero .miolo { display: grid; grid-template-columns: 1fr; grid-template-areas: "titulo" "video" "resto"; gap: 24px; align-items: center; }
+.h-titulo { grid-area: titulo; }
+.h-video { grid-area: video; }
+.h-resto { grid-area: resto; }
+.h-titulo h1 { margin-bottom: 0; }
+.selo { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--floresta); background: var(--areia); padding: 5px 12px; border-radius: 999px; }
+.hero h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.4rem, 7vw, 3.8rem); line-height: 1.05; margin: 16px 0 14px; color: var(--texto); text-wrap: balance; }
+.hero h1 em { font-style: italic; color: var(--floresta); }
+.hero p.sub { font-size: 1.15rem; color: var(--texto2); margin: 0 0 24px; max-width: 34em; }
+.hero p.sub b { color: var(--floresta); }
+.pontos { list-style: none; margin: 0 0 28px; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.pontos li { border: 1px solid #d6d3c8; background: var(--marfim); padding: 6px 14px; border-radius: 999px; font-size: 15px; color: var(--floresta); font-weight: 600; }
+.btn-grande { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 58px; padding: 0 28px; border-radius: 999px; background: var(--floresta); color: var(--marfim); font-weight: 700; font-size: 1.1rem; text-decoration: none; box-shadow: 0 10px 26px rgba(15, 81, 50, .25); }
+.btn-grande svg { width: 20px; height: 20px; }
+.video-moldura { justify-self: center; width: min(100%, 360px); }
+.video { position: relative; width: 100%; aspect-ratio: 9 / 16; /* vídeo vertical; se for horizontal, troque para 16 / 9 e aumente a largura da moldura */ border-radius: 22px; overflow: hidden; background: #e9e3d3; border: 6px solid #fff; box-shadow: 0 24px 50px rgba(27, 42, 34, .18); }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.video-leg { margin: 12px 0 0; text-align: center; font-size: 14px; color: var(--texto2); }
+@media (min-width: 860px) {
+  .hero .miolo { grid-template-columns: 1.15fr .85fr; grid-template-areas: "titulo video" "resto video"; column-gap: 56px; row-gap: 20px; align-items: end; }
+  .h-resto { align-self: start; }
+  .hero { padding-block: 64px 80px; }
+}
+
+/* Seções */
+section.bloco { padding-block: 56px; }
+.titulo-sec { font-family: var(--display); font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 700; line-height: 1.1; margin: 0 0 10px; color: var(--floresta); text-wrap: balance; }
+.intro { margin: 0 0 36px; color: var(--texto2); max-width: 36em; font-size: 1.1rem; }
+
+/* Como funciona: três passos */
+.passos { display: grid; grid-template-columns: 1fr; gap: 16px; counter-reset: p; }
+.passo { background: #fff; border: 1px solid #e3dfd2; border-radius: 20px; padding: 22px 22px 22px 76px; position: relative; }
+.passo::before { counter-increment: p; content: counter(p); position: absolute; left: 20px; top: 20px; width: 40px; height: 40px; border-radius: 50%; background: var(--floresta); color: #fff; font-family: var(--display); font-size: 1.5rem; font-weight: 700; display: grid; place-items: center; }
+.passo h3 { margin: 0 0 4px; font-size: 1.15rem; }
+.passo p { margin: 0; color: var(--texto2); }
+@media (min-width: 760px) { .passos { grid-template-columns: repeat(3, 1fr); } }
+
+/* Funções: texto + tela do app */
+.funcoes { display: flex; flex-direction: column; gap: 56px; }
+.funcao { display: grid; grid-template-columns: 1fr; gap: 22px; align-items: center; }
+.funcao .tela { justify-self: center; width: min(62vw, 250px); border-radius: 26px; overflow: hidden; border: 6px solid #fff; box-shadow: 0 18px 40px rgba(27, 42, 34, .18); background: var(--marfim2); }
+.funcao .tela img { width: 100%; height: auto; }
+.funcao .rot { font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #9a7a35; margin: 0 0 6px; }
+.funcao h3 { font-family: var(--display); font-size: clamp(1.7rem, 4.5vw, 2.2rem); line-height: 1.1; margin: 0 0 10px; color: var(--texto); }
+.funcao p { margin: 0 0 10px; max-width: 32em; }
+.funcao b { color: var(--floresta); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 1px 12px; border-radius: 999px; border: 1px solid #d6d3c8; background: #fff; color: var(--floresta); font-weight: 600; font-size: .9em; white-space: nowrap; }
+@media (min-width: 760px) {
+  .funcao { grid-template-columns: 1fr 260px; gap: 48px; }
+  .funcao:nth-child(even) { grid-template-columns: 260px 1fr; }
+  .funcao:nth-child(even) .tela { order: -1; }
+}
+
+/* Instalar */
+.instalar { background: var(--marfim2); }
+.cartoes { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.cartao { background: #fff; border-radius: 20px; padding: 22px; border: 1px solid #e3dfd2; }
+.cartao h3 { margin: 0 0 8px; font-size: 1.2rem; color: var(--floresta); }
+.cartao ol { margin: 0; padding-left: 22px; }
+.cartao li { margin-bottom: 6px; }
+@media (min-width: 760px) { .cartoes { grid-template-columns: 1fr 1fr; } }
+
+/* Final com a frase de São Josemaria */
+.final { background: radial-gradient(circle at 50% 30%, rgba(226, 180, 86, .28), rgba(241, 235, 221, 0) 60%), var(--marfim2); color: var(--texto); text-align: center; padding-block: 64px; }
+.final img { width: 110px; margin: 0 auto 18px; filter: drop-shadow(0 0 22px rgba(226, 180, 86, .55)); }
+.final .missao { font-size: 1.2rem; max-width: 30em; margin: 0 auto 26px; color: var(--texto2); }
+.final blockquote { margin: 0 auto 32px; max-width: 30em; font-family: var(--display); font-style: italic; font-size: clamp(1.45rem, 4vw, 1.9rem); line-height: 1.4; color: var(--floresta); }
+.final cite { display: block; margin-top: 12px; font-family: var(--ui); font-style: normal; font-size: 15px; letter-spacing: .06em; color: #9a7a35; }
+.rodape { background: var(--marfim); border-top: 1px solid #e3dfd2; color: var(--texto2); text-align: center; font-size: 14px; padding-block: 22px; }
+
+/* Botão sempre visível, embaixo da tela */
+.fixo {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: linear-gradient(to top, rgba(250, 249, 244, .97) 60%, rgba(250, 249, 244, 0));
+  display: flex;
+  justify-content: center;
+}
+.fixo a { width: min(100%, 460px); min-height: 60px; font-size: 1.15rem; }
+@media (min-width: 860px) {
+  body { padding-bottom: 0; }
+  .fixo { left: auto; right: 28px; bottom: 28px; padding: 0; background: none; }
+  .fixo a { width: auto; }
+}
+
+a:focus-visible, iframe:focus-visible { outline: 3px solid var(--ouro); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="cabeca">
+  <div class="miolo">
+    <a class="marca" href="#topo"><img src="../imagens/rosa.png" alt=""><span>Santo Terço</span></a>
+    <a class="btn-topo" href="../">Abrir o app</a>
+  </div>
+</header>
+
+<main id="topo">
+  <section class="hero">
+    <div class="miolo">
+      <div class="h-titulo">
+        <span class="selo">Lançamento · gratuito</span>
+        <h1>O terço da Obra, <em>no seu celular</em></h1>
+      </div>
+      <div class="h-resto">
+        <p class="sub">Um aplicativo simples e bonito para rezar o terço, em <b>português</b> e em <b>latim</b>. Cada toque passa uma conta: você nunca mais perde a conta.</p>
+        <ul class="pontos">
+          <li>Português e latim</li>
+          <li>Mistérios do dia</li>
+          <li>Pinturas e meditações</li>
+          <li>Funciona no navegador</li>
+        </ul>
+        <a class="btn-grande" href="../">Rezar agora
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+        </a>
+      </div>
+      <div class="video-moldura h-video">
+        <div class="video">
+          <!-- vídeo do Google Drive: só toca quando a pessoa aperta o play -->
+          <iframe src="https://drive.google.com/file/d/1HL7VkA5SRld2JNu5LV9vxy2x7WMhNNJD/preview" title="Vídeo de lançamento do Santo Terço" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <p class="video-leg">Veja em 2 minutos como funciona</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <div class="miolo">
+      <h2 class="titulo-sec">Como funciona</h2>
+      <p class="intro">É muito fácil. Não precisa baixar nada, nem criar conta.</p>
+      <div class="passos">
+        <div class="passo"><h3>Abra o aplicativo</h3><p>Toque no botão <b>“Abrir o Santo Terço”</b>. Ele já abre com os Mistérios do dia.</p></div>
+        <div class="passo"><h3>Toque no terço</h3><p>Cada toque em qualquer lugar do terço passa <b>uma conta</b>.</p></div>
+        <div class="passo"><h3>Reze tranquilo</h3><p>A conta que brilha mostra <b>onde você está</b>. Se precisar, veja o texto da oração.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco" style="padding-top: 8px;">
+    <div class="miolo">
+      <h2 class="titulo-sec">Tudo o que você pode fazer</h2>
+      <p class="intro">Um passo a passo simples de cada parte do aplicativo.</p>
+
+      <div class="funcoes">
+        <div class="funcao">
+          <div>
+            <p class="rot">Contar as contas</p>
+            <h3>Um toque, uma conta</h3>
+            <p>Toque em <b>qualquer lugar do terço</b> para passar para a próxima conta. A <b>conta dourada que brilha</b> mostra onde você está.</p>
+            <p>No meio do terço aparecem o nome da oração e a contagem, por exemplo <b>“2 de 10”</b>.</p>
+            <p>Tocou sem querer? O botão <span class="chip">‹ Voltar</span> desfaz.</p>
+          </div>
+          <div class="tela"><img src="telas/04-dezena-ave-maria.webp" alt="Terço na tela, com a conta atual brilhando e a contagem 2 de 10" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Ler a oração</p>
+            <h3>Em latim ou em português</h3>
+            <p>Não sabe a oração de cor? Toque em <span class="chip">Ver oração</span> e o texto aparece.</p>
+            <p>No alto da tela, escolha <span class="chip">LA</span> para <b>latim</b> ou <span class="chip">PT</span> para <b>português</b>.</p>
+          </div>
+          <div class="tela"><img src="telas/05-texto-da-oracao-latim.webp" alt="Texto da Ave Maria em latim" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Textos longos</p>
+            <h3>O texto rola sozinho</h3>
+            <p>Nas orações maiores, como a <b>Ladainha</b>, um botão ao lado do texto faz ele <b>rolar sozinho</b>. Você escolhe a velocidade.</p>
+            <p>Uma barra dourada mostra que ainda há texto para ler.</p>
+          </div>
+          <div class="tela"><img src="telas/14-ladainha-texto-com-rolagem.webp" alt="Texto da Ladainha com o botão de rolagem automática" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Mistérios</p>
+            <h3>Os Mistérios do dia, sem pensar</h3>
+            <p>O aplicativo <b>já abre com os Mistérios do dia da semana</b>: Gozosos, Dolorosos, Gloriosos ou Luminosos.</p>
+            <p>Quer rezar outros? <b>Toque no nome</b>, no alto da tela, e escolha.</p>
+          </div>
+          <div class="tela"><img src="telas/02-escolher-misterios.webp" alt="Lista para escolher os Mistérios" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Contemplar</p>
+            <h3>Uma pintura para cada Mistério</h3>
+            <p>Durante cada Mistério, toque em <span class="chip">Imagem</span> para ver uma <b>pintura clássica</b> que ajuda a contemplar a cena.</p>
+          </div>
+          <div class="tela"><img src="telas/07-imagem-do-misterio.webp" alt="Pintura do Batismo de Jesus em tela cheia" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Ouvir</p>
+            <h3>Meditação e Auxílio</h3>
+            <p>Toque em <span class="chip">▶ Meditação</span> para ouvir a <b>meditação do Mistério</b>, segundo os escritos de <b>São Josemaria Escrivá</b> no livro <b>“Santo Rosário”</b>.</p>
+            <p>Em alguns momentos aparece o <span class="chip">▶ Auxílio</span>: um áudio para lhe acompanhar na oração.</p>
+          </div>
+          <div class="tela"><img src="telas/13-ladainha-auxilio.webp" alt="Terço durante a Ladainha, com o botão Auxílio" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Sons</p>
+            <h3>Uma pedrinha, um sininho</h3>
+            <p>Cada toque faz o som de uma <b>pedrinha</b>. No fim de cada dezena, um <b>sininho</b> avisa que chegou o <b>Glória ao Pai</b>.</p>
+            <p>Para rezar em silêncio, desligue o som nos <b>Ajustes</b>.</p>
+          </div>
+          <div class="tela"><img src="telas/12-fim-da-dezena-gloria.webp" alt="Dezena completa em dourado, no Glória ao Pai" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Momento especial</p>
+            <h3>Comunhão Espiritual</h3>
+            <p>Depois da visita ao Santíssimo, aparece o <b>ostensório</b> iluminado, com o texto da <b>Comunhão Espiritual</b>.</p>
+          </div>
+          <div class="tela"><img src="telas/03-comunhao-espiritual.webp" alt="Ostensório iluminado com a oração da Comunhão Espiritual" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Navegar</p>
+            <h3>Vá direto a qualquer parte</h3>
+            <p>Toque no contador, por exemplo <span class="chip">9 / 78</span>, para ver a lista de todo o terço e <b>ir direto</b> para onde quiser.</p>
+            <p>O aplicativo também <b>guarda onde você parou</b>: pode fechar e voltar depois.</p>
+          </div>
+          <div class="tela"><img src="telas/08-ir-para-posicao.webp" alt="Lista com todas as partes do terço" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Do seu jeito</p>
+            <h3>Tela clara ou escura</h3>
+            <p>No alto, o <span class="chip">☀ / ☾</span> troca entre a <b>tela clara</b>, com contas de esmeralda, e a <b>tela escura</b>, com contas de diamante.</p>
+            <p>Nos <b>Ajustes</b> você liga ou desliga o <b>som</b> e a <b>vibração</b>, e pode recomeçar o terço.</p>
+          </div>
+          <div class="tela"><img src="telas/10-tema-claro-esmeraldas.webp" alt="Aplicativo no tema claro, com contas de esmeralda" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Ajuda</p>
+            <h3>Ficou com dúvida?</h3>
+            <p>Toque no <span class="chip">?</span>, no canto de cima. Abre um <b>passo a passo</b> bem simples, com letras grandes.</p>
+          </div>
+          <div class="tela"><img src="telas/11-tutorial-ajuda.webp" alt="Tela de ajuda com o passo a passo" loading="lazy" width="540" height="1169"></div>
+        </div>
+
+        <div class="funcao">
+          <div>
+            <p class="rot">Ao terminar</p>
+            <h3>A Rosa de Rialp</h3>
+            <p>No fim do terço aparece uma <b>rosa dourada</b> com uma frase de <b>São Josemaria</b> sobre o amor a Nossa Senhora.</p>
+            <p>Depois, o terço recomeça no mesmo Mistério, até que você troque.</p>
+          </div>
+          <div class="tela"><img src="telas/15-fim-rosa-de-rialp.webp" alt="Rosa dourada com frase de São Josemaria" loading="lazy" width="540" height="1169"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloco instalar">
+    <div class="miolo">
+      <h2 class="titulo-sec">Deixe na tela do celular</h2>
+      <p class="intro">Assim ele abre como um aplicativo, com o ícone da rosa dourada.</p>
+      <div class="cartoes">
+        <div class="cartao">
+          <h3>No iPhone</h3>
+          <ol>
+            <li>Abra o Santo Terço no <b>Safari</b>.</li>
+            <li>Toque no botão <b>Compartilhar</b> (o quadrado com a seta para cima).</li>
+            <li>Escolha <b>Adicionar à Tela de Início</b>.</li>
+          </ol>
+        </div>
+        <div class="cartao">
+          <h3>No Android</h3>
+          <ol>
+            <li>Abra o Santo Terço no <b>Chrome</b>.</li>
+            <li>Toque nos <b>três pontinhos</b>, no canto de cima.</li>
+            <li>Escolha <b>Adicionar à tela inicial</b> ou <b>Instalar aplicativo</b>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="miolo">
+      <img src="../imagens/rosa.png" alt="">
+      <p class="missao">Este aplicativo tem o objetivo de aumentar o nosso amor a Maria, para a maior glória de Deus.</p>
+      <blockquote>“Se rezas o terço todos os dias, com espírito de fé e amor, a Senhora se encarregará de levar-te muito longe pelo caminho do seu Filho.”<cite>São Josemaria Escrivá · Sulco 691</cite></blockquote>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">Santo Terço · gratuito · orações em português e em latim</footer>
+
+<!-- botão sempre visível -->
+<div class="fixo">
+  <a class="btn-grande" href="../">Abrir o Santo Terço
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12M11 5l5 5-5 5"/></svg>
+  </a>
+</div>
+
+</body>
+</html>
