@@ -79,21 +79,6 @@
 }
 * { box-sizing: border-box; }
 
-/* Celular deitado: o app gira o próprio conteúdo no sentido contrário e continua em pé em relação ao aparelho.
-   (Os navegadores não deixam uma página travar a orientação; assim o efeito é o mesmo.) */
-html.deitado-90, html.deitado-270 { padding: 0; overflow: hidden; }
-html.deitado-90 body, html.deitado-270 body {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: var(--alt-tela);
-  height: var(--larg-tela);
-  transform-origin: 0 0;
-  padding-left: 16px;
-  padding-right: 16px;
-}
-html.deitado-90 body { transform: translateY(var(--alt-tela)) rotate(-90deg); padding-top: env(safe-area-inset-left, 0px); }
-html.deitado-270 body { transform: translateX(var(--larg-tela)) rotate(90deg); padding-top: env(safe-area-inset-right, 0px); }
 [hidden] { display: none !important; }
 html { height: 100%; }
 body {
@@ -1059,6 +1044,48 @@ main {
 }
 @keyframes cintila { 0%, 100% { opacity: 0; transform: scale(.3); } 45% { opacity: 1; transform: scale(1.4); } }
 
+
+/* ===== Celular deitado: duas colunas — o terço à esquerda, o resto à direita ===== */
+@media (orientation: landscape) and (max-height: 560px) {
+  body {
+    display: grid;
+    grid-template-columns: min(46vw, calc((100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) * .66)) minmax(0, 1fr);
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto auto;
+    grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto auto;
+    align-content: start;
+    height: 100%;
+    column-gap: 24px;
+  }
+  main { display: contents; }               /* o terço e os botões entram direto nas colunas */
+  .stage-area { grid-column: 1; grid-row: 1 / -1; padding-block: 8px; min-height: 0; }
+  .top { grid-column: 2; grid-row: 1; padding-block: 10px 6px; }
+  .toolbar { grid-column: 2; grid-row: 2; min-height: 0; padding-top: 4px; }
+  .canto-esq, .canto-dir { position: static; grid-column: 2; grid-row: 3; margin-top: 10px; align-self: start; }
+  .canto-esq { justify-self: start; }
+  .canto-dir { justify-self: end; }
+  .hint { grid-column: 2; grid-row: 4; position: static; align-self: end; padding-bottom: 6px; }
+  .ripple { display: none; }
+  .dock { grid-column: 2; grid-row: 5; }
+  .progress { grid-column: 2; grid-row: 6; }
+  .bottom { grid-column: 2; grid-row: 7; padding-block: 10px 6px; }
+  .bottom .btn { height: 46px; }
+  .credit-home { grid-column: 2; grid-row: 8; margin: 0; padding-bottom: 8px; }
+  .dock-player { height: 80px; }
+
+  /* telas cheias: imagem ao lado do texto */
+  .viewer-fig { flex-direction: row; align-items: center; gap: 24px; }
+  .viewer-fig img { flex: 1 1 auto; min-width: 0; height: 100%; width: auto; max-width: 58%; }
+  .viewer-fig figcaption { flex: 1 1 0; min-width: 0; padding-right: 8px; }
+  .v-conta { flex-wrap: wrap; justify-content: center; max-width: 100%; border-radius: 22px; padding: 6px 6px 6px 14px; row-gap: 6px; }
+  .comunhao, .rosa-fim { flex-direction: row; gap: 28px; padding-top: calc(12px + env(safe-area-inset-top, 0px)); padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+  .ost-img { max-height: 82vh; width: auto; height: 82vh; }
+  .rosa-img { max-height: 70vh; width: auto; height: 70vh; }
+  .com-txt, .rosa-txt { max-width: 46vw; }
+  .com-txt p, .rosa-cit p { font-size: 1.12rem; }
+  .com-dica { position: absolute; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; }
+  .sheet { max-height: 92%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rosa-fim, .rosa-luz, .rosa-img, .rosa-txt, .brilho { animation: none; }
   .comunhao, .raios, .feixe, .luz-cai, .ost-img, .com-txt, .com-dica { animation: none; }
@@ -1411,7 +1438,7 @@ main {
 <label id="hapticLbl" aria-hidden="true" style="position:fixed;left:-200px;top:0;opacity:0;pointer-events:none"><input type="checkbox" switch tabindex="-1"></label>
 
 <!-- Textos das orações e nomes dos Mistérios: edite em oracoes.js -->
-<script src="oracoes.js?v=32"></script><!-- o número força o celular a buscar a versão nova do arquivo -->
+<script src="oracoes.js?v=33"></script><!-- o número força o celular a buscar a versão nova do arquivo -->
 <script>
 (function () {
   "use strict";
@@ -2767,26 +2794,6 @@ main {
   if (state.idx > 0) hint.classList.add("gone");
   window.addEventListener("pagehide", salvar); // garante a posição salva ao fechar ou recarregar
 
-  /* ---------- Sempre na vertical ---------- */
-  function manterEmPe() {
-    const L = window.innerWidth, A = window.innerHeight, raiz = document.documentElement;
-    const celular = window.matchMedia("(pointer: coarse)").matches && Math.min(L, A) < 600;
-    const deitado = celular && L > A;
-    let ang = screen.orientation && typeof screen.orientation.angle === "number" ? screen.orientation.angle
-      : (typeof window.orientation === "number" ? window.orientation : 90);
-    ang = ((ang % 360) + 360) % 360;
-    raiz.style.setProperty("--larg-tela", L + "px");
-    raiz.style.setProperty("--alt-tela", A + "px");
-    raiz.classList.toggle("deitado-90", deitado && ang !== 270);
-    raiz.classList.toggle("deitado-270", deitado && ang === 270);
-  }
-  window.addEventListener("resize", manterEmPe);
-  window.addEventListener("orientationchange", () => setTimeout(manterEmPe, 50));
-  manterEmPe();
-  // no app instalado na tela de início (Android), o próprio sistema trava a vertical
-  document.addEventListener("click", () => {
-    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(() => {}); } catch (e) {}
-  }, { once: true });
   carregarSpotify(); // o player já vai carregando, para o áudio começar na hora do toque
   aplicarTema();
   renderCabecalho();
