@@ -733,8 +733,13 @@ window.AUDIO = {
   AUXÍLIO (Spotify)
   Durante a Ladainha, com as orações em latim, o botão "Auxílio" toca este trecho do episódio.
   Os tempos aceitam frações de segundo: "19:28.5" = 19 minutos e 28 segundos e meio.
+
+  "ativo": false  -> o botão aparece apagado e não toca nada (aguardando autorização do áudio).
+  "ativo": true   -> o botão volta a funcionar normalmente, com o trecho abaixo.
+  Para reativar, troque false por true. Episódio e tempos já estão configurados.
 */
 window.AUXILIO = {
+  "ativo": false,
   "episodio": "6evbEetOndo4JrdJABFVUg",
   "inicio": "16:38",
   "fim": "19:28.5"

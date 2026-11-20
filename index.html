@@ -434,6 +434,8 @@ main {
 }
 .imgbtn svg { width: 17px; height: 17px; flex: none; }
 .imgbtn.audbtn { text-decoration: none; }
+/* Auxílio desativado (aguardando autorização do áudio): visível, mas apagado e sem ação */
+.imgbtn.desativado { opacity: .38; filter: saturate(.4); cursor: not-allowed; box-shadow: none; }
 
 /* Imagem do Mistério em tela cheia (fundo escuro nos dois temas, como numa capela) */
 .viewer {
@@ -2318,7 +2320,8 @@ main {
     const ini = emSegundos(COMPANHIA.inicio);
     return {
       uri: "spotify:episode:" + COMPANHIA.episodio, ini: ini, fim: emSegundos(COMPANHIA.fim),
-      link: "https://open.spotify.com/episode/" + COMPANHIA.episodio + "?t=" + ini, chave: "companhia"
+      link: "https://open.spotify.com/episode/" + COMPANHIA.episodio + "?t=" + ini, chave: "companhia",
+      desativado: COMPANHIA.ativo === false
     };
   }
 
@@ -2353,8 +2356,11 @@ main {
   function atualizarBotaoAudio() {
     BOTOES.forEach(bt => {
       const cap = bt.trecho(), b = $(bt.el);
-      b.hidden = !cap || (semPlayer && !spotify);
+      b.hidden = !cap || (!cap.desativado && semPlayer && !spotify);
       if (!cap) return;
+      b.classList.toggle("desativado", !!cap.desativado);
+      b.setAttribute("aria-disabled", cap.desativado ? "true" : "false");
+      if (cap.desativado) { b.setAttribute("aria-label", "Auxílio (indisponível no momento)"); $(bt.ico).innerHTML = PLAY; return; }
       const meu = ativo && ativo.chave === cap.chave && tocando;
       $(bt.ico).innerHTML = meu ? PAUSE : PLAY; // o ícone mostra se está tocando (pausa) ou parado (play)
       b.setAttribute("aria-label", (meu ? "Pausar " : "Ouvir ") + bt.nome);
@@ -2444,7 +2450,7 @@ main {
   // ao mudar de Mistério (ou sair da Ladainha), o áudio anterior para
   function sincronizarAudio() {
     const cap = capituloAtual() || companhiaAtual();
-    if (cap) carregarSpotify();
+    if (cap && !cap.desativado) carregarSpotify();
     if (ativo && (!cap || cap.chave !== ativo.chave)) pararAudio();
     atualizarBotaoAudio();
   }
@@ -2452,7 +2458,7 @@ main {
   BOTOES.forEach(bt => $(bt.el).addEventListener("click", e => {
     e.stopPropagation(); // tocar o áudio não passa a conta
     const cap = bt.trecho();
-    if (!cap) return;
+    if (!cap || cap.desativado) return; // Auxílio desativado: o toque não faz nada
     if (!spotify) { pendente = cap; carregarSpotify(); return; } // toca assim que o player ficar pronto
     if (ativo && ativo.chave === cap.chave && controle) {
       if (tocando) sp(c => c.pause()); else sp(c => c.resume());
