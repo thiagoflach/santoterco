@@ -470,6 +470,34 @@ main {
 .v-kicker { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #d6c99a; }
 .v-name { font-family: var(--display); font-style: italic; font-size: 1.45rem; line-height: 1.2; text-wrap: balance; max-width: 30ch; }
 .v-autor { font-size: 12px; color: #a6a078; letter-spacing: .03em; }
+.v-conta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 4px 4px 4px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(214, 201, 154, .3);
+  background: rgba(36, 56, 47, .7);
+  cursor: default;
+}
+.v-passo { font-size: 14px; font-weight: 600; color: #f1ebdd; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.v-prox {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 38px;
+  padding: 0 12px 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: #d6c99a;
+  color: #17251f;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.v-prox svg { width: 16px; height: 16px; }
+.v-prox:active { filter: brightness(.92); }
 .v-audio {
   margin-top: 10px;
   height: 46px;
@@ -1254,6 +1282,13 @@ main {
       <span class="v-kicker" id="vKicker"></span>
       <span class="v-name" id="vName"></span>
       <span class="v-autor" id="vAutor"></span>
+      <!-- passar a conta sem fechar a imagem -->
+      <span class="v-conta" id="vConta">
+        <span class="v-passo" id="vPasso"></span>
+        <button class="v-prox" id="vProx" type="button">Próxima conta
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l6 6-6 6"/></svg>
+        </button>
+      </span>
     </figcaption>
   </figure>
   <button class="iconbtn v-close" id="viewerClose" type="button" aria-label="Fechar a imagem">
@@ -2016,6 +2051,7 @@ main {
     somDePedra(false);
     render();
     if (!$("prayerSheet").hidden) preencherOracao();
+    if (!viewer.hidden) atualizarViewer();
   }
 
   // Toque na área do terço = próxima conta
@@ -2221,18 +2257,33 @@ main {
     return (lista && lista[s.misterio - 1]) || null;
   }
   const viewer = $("viewer"), fig = $("viewerFig");
-  $("imgBtn").addEventListener("click", e => {
-    e.stopPropagation(); // abrir a imagem não passa a conta
+  // mostra a pintura do Mistério atual e a conta em que a pessoa está
+  function atualizarViewer() {
     const img = imagemAtual(), s = passos[state.idx];
-    if (!img) return;
-    $("viewerImg").src = img.arquivo;
-    $("viewerImg").alt = conjunto().misterios[s.misterio - 1];
+    if (!img) { viewer.hidden = true; return; }    // saiu dos Mistérios: fecha a imagem
+    if ($("viewerImg").getAttribute("src") !== img.arquivo) {
+      $("viewerImg").src = img.arquivo;
+      $("viewerImg").alt = conjunto().misterios[s.misterio - 1];
+    }
     $("vKicker").textContent = s.secao;
     $("vName").textContent = conjunto().misterios[s.misterio - 1];
     $("vAutor").textContent = img.autor || "";
+    $("vPasso").textContent = tituloDe(s) + (s.contagem ? " · " + s.contagem : "");
+  }
+  $("imgBtn").addEventListener("click", e => {
+    e.stopPropagation(); // abrir a imagem não passa a conta
+    if (!imagemAtual()) return;
+    atualizarViewer();
     fig.style.transform = ""; fig.style.opacity = "";
     viewer.hidden = false;
     $("viewerClose").focus({ preventScroll: true });
+  });
+  // passar a conta sem fechar a imagem (com os mesmos sons: pedrinha, e o sininho no Glória)
+  $("vConta").addEventListener("click", e => e.stopPropagation());
+  $("vProx").addEventListener("click", e => {
+    e.stopPropagation();
+    avancar();
+    if (!viewer.hidden) atualizarViewer();
   });
   viewer.addEventListener("click", () => { viewer.hidden = true; });
 
