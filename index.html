@@ -501,6 +501,12 @@ main {
 /* contagem em cima; Voltar e Próxima conta lado a lado embaixo (cabe em qualquer celular) */
 .v-conta { flex-wrap: wrap; justify-content: center; row-gap: 6px; padding: 8px !important; border-radius: 22px !important; max-width: 100%; }
 .v-passo { order: -1; flex-basis: 100%; text-align: center; }
+/* versão discreta: sem caixa em volta, botões finos e translúcidos */
+.v-conta { background: transparent !important; border: 0 !important; padding: 2px !important; margin-top: 4px !important; gap: 10px !important; }
+.v-passo { font-size: 13px !important; font-weight: 500 !important; color: #a6a078 !important; }
+.v-volta, .v-prox { height: 32px !important; font-size: 13px !important; font-weight: 600 !important; }
+.v-volta { border-color: rgba(214, 201, 154, .25) !important; color: #cfc6a6 !important; padding: 0 12px 0 6px !important; }
+.v-prox { background: rgba(214, 201, 154, .14) !important; border: 1px solid rgba(214, 201, 154, .4) !important; color: #e8d7a4 !important; padding: 0 8px 0 14px !important; }
 .v-prox:active { filter: brightness(.92); }
 .v-audio {
   margin-top: 10px;
