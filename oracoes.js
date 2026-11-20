@@ -739,7 +739,7 @@ window.AUDIO = {
   Para reativar, troque false por true. Episódio e tempos já estão configurados.
 */
 window.AUXILIO = {
-  "ativo": false,
+  "ativo": true,
   "episodio": "6evbEetOndo4JrdJABFVUg",
   "inicio": "16:38",
   "fim": "19:28.5"
