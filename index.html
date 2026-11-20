@@ -134,7 +134,11 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
   min-width: 0;
 }
 .day {
-  font-size: 11px;
+  font-size: 13px;
+  white-space: nowrap;           /* sempre numa linha; se não couber, termina com "…" */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
   font-weight: 600;
   letter-spacing: .14em;
   text-transform: uppercase;
@@ -142,7 +146,7 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
 }
 .setname {
   font-family: var(--display);
-  font-size: 1.55rem;
+  font-size: 1.72rem;
   font-weight: 600;
   color: var(--accent);
   line-height: 1.1;
@@ -157,7 +161,7 @@ button:focus-visible, main:focus-visible { outline: 2px solid var(--accent); out
 @media (max-width: 400px) {
   .top { gap: 8px; }
   .top-right { gap: 6px; }
-  .setname { font-size: 1.32rem; }
+  .setname { font-size: 1.46rem; }
   .step { padding: 0 11px; }
   .step svg { display: none; }
   .top-right .iconbtn { width: 38px; height: 38px; }
@@ -1726,7 +1730,7 @@ main {
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => ajustarNome()); // depois que a fonte do título carrega
 
   function renderCabecalho() {
-    $("dayLbl").textContent = DIAS[hoje.getDay()] + (state.set === conjuntoHoje ? "" : " · escolhido manualmente");
+    $("dayLbl").textContent = DIAS[hoje.getDay()]; // só o dia (a lista de Mistérios marca qual é o de "Hoje")
     $("setLbl").textContent = conjunto().nome;
     ajustarNome();
   }
