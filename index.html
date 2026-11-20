@@ -436,7 +436,7 @@ main {
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   color: #f1ebdd;
-  cursor: zoom-out;
+  cursor: default;
 }
 .viewer-bg { position: absolute; inset: 0; background: rgba(6, 10, 8, .95); animation: fade .35s ease; }
 .viewer-fig {
@@ -490,6 +490,17 @@ main {
   white-space: nowrap;
 }
 .v-prox svg { width: 16px; height: 16px; }
+.v-volta {
+  display: inline-flex; align-items: center; gap: 2px;
+  height: 38px; padding: 0 14px 0 8px; border-radius: 999px;
+  border: 1px solid rgba(214, 201, 154, .4); background: transparent;
+  color: #f1ebdd; font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.v-volta svg { width: 16px; height: 16px; }
+.v-volta:disabled { opacity: .35; }
+/* contagem em cima; Voltar e Próxima conta lado a lado embaixo (cabe em qualquer celular) */
+.v-conta { flex-wrap: wrap; justify-content: center; row-gap: 6px; padding: 8px !important; border-radius: 22px !important; max-width: 100%; }
+.v-passo { order: -1; flex-basis: 100%; text-align: center; }
 .v-prox:active { filter: brightness(.92); }
 .v-audio {
   margin-top: 10px;
@@ -1319,6 +1330,9 @@ main {
       <span class="v-autor" id="vAutor"></span>
       <!-- passar a conta sem fechar a imagem -->
       <span class="v-conta" id="vConta">
+        <button class="v-volta" id="vVolta" type="button" aria-label="Voltar uma conta">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg>Voltar
+        </button>
         <span class="v-passo" id="vPasso"></span>
         <button class="v-prox" id="vProx" type="button">Próxima conta
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l6 6-6 6"/></svg>
@@ -2104,7 +2118,7 @@ main {
 
   const algumaFolhaAberta = () => ["prayerSheet", "setSheet", "optSheet", "jumpSheet", "viewer", "msgSheet", "rosaFim", "comunhao", "ajuda"].some(id => !$(id).hidden);
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") { fecharComunhao(); fecharFolhas(); return; }
+    if (e.key === "Escape") { if (!viewer.hidden) return; fecharComunhao(); fecharFolhas(); return; }
     if (!$("prayerSheet").hidden && e.key === "ArrowRight") { avancar(); return; }
     if (algumaFolhaAberta()) return;
     if (e.target.tagName === "BUTTON" && (e.key === " " || e.key === "Enter")) return;
@@ -2304,6 +2318,7 @@ main {
     $("vName").textContent = conjunto().misterios[s.misterio - 1];
     $("vAutor").textContent = img.autor || "";
     $("vPasso").textContent = tituloDe(s) + (s.contagem ? " · " + s.contagem : "");
+    $("vVolta").disabled = state.idx === 0;
   }
   $("imgBtn").addEventListener("click", e => {
     e.stopPropagation(); // abrir a imagem não passa a conta
@@ -2315,12 +2330,19 @@ main {
   });
   // passar a conta sem fechar a imagem (com os mesmos sons: pedrinha, e o sininho no Glória)
   $("vConta").addEventListener("click", e => e.stopPropagation());
+  $("vVolta").addEventListener("click", e => {
+    e.stopPropagation();
+    voltar();
+    if (!viewer.hidden) atualizarViewer();
+  });
   $("vProx").addEventListener("click", e => {
     e.stopPropagation();
     avancar();
     if (!viewer.hidden) atualizarViewer();
   });
-  viewer.addEventListener("click", () => { viewer.hidden = true; });
+  // com a imagem aberta, só o X fecha e só os botões passam ou voltam a conta (tocar na imagem não faz nada)
+  viewer.addEventListener("click", e => e.stopPropagation());
+  $("viewerClose").addEventListener("click", e => { e.stopPropagation(); viewer.hidden = true; });
 
   /* ---------- Áudio pelo player do Spotify: meditação dos Mistérios e Auxílio da Ladainha ---------- */
 
@@ -2496,21 +2518,6 @@ main {
     }
   }));
   $("dockClose").addEventListener("click", pararAudio);
-  // arrastar para baixo fecha a imagem
-  let y0 = null, dy = 0;
-  viewer.addEventListener("touchstart", e => { y0 = e.touches[0].clientY; dy = 0; fig.style.transition = "none"; }, { passive: true });
-  viewer.addEventListener("touchmove", e => {
-    if (y0 === null) return;
-    dy = Math.max(0, e.touches[0].clientY - y0);
-    fig.style.transform = "translateY(" + dy + "px)";
-    fig.style.opacity = String(Math.max(.3, 1 - dy / 400));
-  }, { passive: true });
-  viewer.addEventListener("touchend", () => {
-    fig.style.transition = "";
-    if (dy > 90) viewer.hidden = true;
-    else { fig.style.transform = ""; fig.style.opacity = ""; }
-    y0 = null;
-  });
 
   /* ---------- Ir para uma posição ---------- */
 
